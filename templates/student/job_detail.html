@@ -1,0 +1,87 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}{{ job.title }} — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Job Details{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <div class="company-badge" style="width:64px;height:64px;font-size:2rem;"><i class="fa-solid fa-building"></i></div>
+          <div>
+            <h4 class="mb-0">{{ job.title }}</h4>
+            <div class="muted">{{ job.company.name }} &middot; {{ job.employment_type }}</div>
+          </div>
+        </div>
+        <div class="row g-2 mb-4">
+          <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.package }} LPA</div><small class="muted">Package</small></div>
+          <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.vacancies }}</div><small class="muted">Vacancies</small></div>
+          <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.location or 'N/A' }}</div><small class="muted">Location</small></div>
+          <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.deadline.strftime('%d %b %Y') }}</div><small class="muted">Deadline</small></div>
+        </div>
+
+        <h6 class="fw-bold"><i class="fa-solid fa-align-left text-primary me-2"></i>Job Description</h6>
+        <p class="muted">{{ job.description }}</p>
+
+        <h6 class="fw-bold mt-4"><i class="fa-solid fa-wrench text-primary me-2"></i>Required Skills</h6>
+        <div class="mb-3">
+          {% for skill in job.skills_list() %}
+            <span class="skill-tag">{{ skill }}</span>
+          {% else %}
+            <span class="muted">No specific skills listed.</span>
+          {% endfor %}
+        </div>
+
+        <h6 class="fw-bold"><i class="fa-solid fa-building text-primary me-2"></i>About the Company</h6>
+        <p class="muted">{{ job.company.description or 'Company information not provided.' }}</p>
+        <div class="small muted">
+          <i class="fa-solid fa-location-dot me-1"></i>{{ job.company.location or 'N/A' }}
+          {% if job.company.website %}&middot; <a href="{{ job.company.website }}" target="_blank" rel="noopener">{{ job.company.website }}</a>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-user-check me-2"></i>Eligibility</div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex justify-content-between py-1"><span class="muted">Min CGPA</span><span class="fw-semibold">{{ job.min_cgpa }}</span></li>
+          <li class="d-flex justify-content-between py-1"><span class="muted">Max Backlogs</span><span class="fw-semibold">{{ job.max_backlogs }}</span></li>
+          <li class="d-flex justify-content-between py-1"><span class="muted">My CGPA</span><span class="fw-semibold">{{ current_user.student.cgpa }}</span></li>
+          <li class="d-flex justify-content-between py-1"><span class="muted">My Backlogs</span><span class="fw-semibold">{{ current_user.student.backlogs }}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body text-center">
+        {% if application %}
+          <div class="badge-status status-{{ application.status }} fs-6">{{ application.status|upper }}</div>
+          <p class="muted small mt-2 mb-0">You applied on {{ application.applied_at.strftime('%d %b %Y') }}</p>
+        {% elif job.is_open and job.company.is_approved and eligible %}
+          <form method="post" action="{{ url_for('student.apply', job_id=job.id) }}">
+            <button type="submit" class="btn btn-primary btn-lg w-100" {{ 'disabled' if not current_user.student.resume_path }}>
+              <i class="fa-solid fa-paper-plane me-1"></i> Apply Now
+            </button>
+          </form>
+          {% if not current_user.student.resume_path %}
+            <p class="small text-danger mt-2 mb-0"><i class="fa-solid fa-triangle-exclamation me-1"></i>Upload your resume first</p>
+          {% endif %}
+        {% elif not eligible %}
+          <div class="alert alert-danger mb-0">
+            <i class="fa-solid fa-circle-xmark me-2"></i>You do not meet the eligibility criteria for this job.
+          </div>
+        {% elif not job.is_open %}
+          <div class="alert alert-secondary mb-0">
+            <i class="fa-solid fa-ban me-2"></i>Applications closed for this job.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Settings — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}System Settings{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-gear me-2"></i>System Settings</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.settings') }}">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Site Name</label>
+              <input type="text" name="site_name" class="form-control" value="{{ settings_map.get('site_name', '') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">College Name</label>
+              <input type="text" name="college_name" class="form-control" value="{{ settings_map.get('college_name', '') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Contact Email</label>
+              <input type="email" name="contact_email" class="form-control" value="{{ settings_map.get('contact_email', '') }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Contact Phone</label>
+              <input type="text" name="contact_phone" class="form-control" value="{{ settings_map.get('contact_phone', '') }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Placement Policy</label>
+              <textarea name="placement_policy" rows="4" class="form-control">{{ settings_map.get('placement_policy', '') }}</textarea>
+              <div class="form-text">Shown to students to explain eligibility rules.</div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-4 btn-icon"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

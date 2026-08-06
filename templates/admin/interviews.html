@@ -1,0 +1,57 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Interviews — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Interviews{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('admin.interviews') }}" class="row g-2 align-items-end">
+      <div class="col-md-9">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Student, job, company..." value="{{ search }}">
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="{{ url_for('admin.interviews') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Student</th><th>Job</th><th>Company</th><th>Date</th><th>Time</th><th>Round</th><th>Mode</th><th>Status</th><th class="text-end">Action</th></tr>
+        </thead>
+        <tbody>
+          {% for iv in interviews.items %}
+            <tr>
+              <td class="fw-semibold">{{ iv.application.student.name }}</td>
+              <td>{{ iv.application.job.title }}</td>
+              <td class="small">{{ iv.application.job.company.name }}</td>
+              <td>{{ iv.interview_date.strftime('%d %b %Y') }}</td>
+              <td>{{ iv.interview_time or 'TBA' }}</td>
+              <td>{{ iv.round }}</td>
+              <td>{{ iv.mode }}</td>
+              <td><span class="badge-status status-{{ iv.status|lower }}">{{ iv.status }}</span></td>
+              <td class="text-end">
+                {% if iv.status != 'Completed' %}
+                  <form method="post" action="{{ url_for('admin.interview_complete', interview_id=iv.id) }}">
+                    <button class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-circle-check me-1"></i>Mark Completed</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="9"><div class="empty-state py-4"><i class="fa-solid fa-calendar-days"></i><p class="mt-2 mb-0">No interviews found.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% include 'layouts/_pagination.html' %}
+{% endblock %}

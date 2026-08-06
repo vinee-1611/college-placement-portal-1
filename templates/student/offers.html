@@ -1,0 +1,44 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}My Offers — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}My Offers{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  {% if offers %}
+    {% for offer in offers %}
+      <div class="col-md-6 col-xl-4">
+        <div class="card card-hover h-100 fade-in-up text-center">
+          <div class="card-body">
+            <div class="resume-preview-icon mb-2"><i class="fa-solid fa-award text-success"></i></div>
+            <h6 class="mb-1">{{ offer.application.job.title }}</h6>
+            <div class="muted small mb-3">{{ offer.application.job.company.name }}</div>
+            <div class="mb-2">
+              <span class="badge bg-success"><i class="fa-solid fa-indian-rupee-sign me-1"></i>{{ offer.package or offer.application.job.package }} LPA</span>
+              <span class="badge bg-light text-dark">Offered on {{ offer.offer_date.strftime('%d %b %Y') }}</span>
+            </div>
+            <span class="badge-status status-{{ offer.status|lower }} mb-3">{{ offer.status }}</span>
+            <div class="mt-3">
+              {% if offer.offer_letter %}
+                <a href="{{ url_for('student.download_offer', offer_id=offer.id) }}" class="btn btn-primary">
+                  <i class="fa-solid fa-download me-1"></i> Download Offer Letter
+                </a>
+              {% else %}
+                <span class="muted small">Offer letter will be uploaded soon.</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="col-12">
+      <div class="empty-state">
+        <i class="fa-solid fa-award"></i>
+        <p class="mt-2">No offers yet. Keep applying and good luck!</p>
+        <a href="{{ url_for('student.jobs') }}" class="btn btn-primary mt-2">Browse Jobs</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

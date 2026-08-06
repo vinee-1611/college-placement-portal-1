@@ -1,0 +1,33 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Notifications — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Notifications{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fa-regular fa-bell me-2"></i>All Notifications</span>
+    <form method="post" action="{{ url_for('main.mark_notifications_read') }}">
+      <button class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-check-double me-1"></i>Mark all read</button>
+    </form>
+  </div>
+  <div class="card-body p-0">
+    <div class="list-group list-group-flush">
+      {% for n in notifications %}
+        <a href="{{ n.link or url_for('main.index') }}" class="list-group-item list-group-item-action px-4 py-3 {{ 'notification-item unread' if not n.is_read }}">
+          <div class="d-flex justify-content-between">
+            <span class="fw-semibold">{{ n.title }}</span>
+            <small class="muted text-nowrap ms-3">{{ n.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+          </div>
+          {% if n.message %}<div class="small muted">{{ n.message }}</div>{% endif %}
+        </a>
+      {% else %}
+        <div class="empty-state py-5">
+          <i class="fa-regular fa-bell"></i>
+          <p class="mt-2 mb-0">You have no notifications.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

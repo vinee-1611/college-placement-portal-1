@@ -1,0 +1,91 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Company Profile — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Company Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-building me-2"></i>Company Information</div>
+      <div class="card-body">
+        {% if not company.is_approved %}
+          <div class="alert alert-warning py-2"><i class="fa-solid fa-clock me-2"></i>Awaiting admin approval.</div>
+        {% else %}
+          <div class="alert alert-success py-2"><i class="fa-solid fa-circle-check me-2"></i>Company approved.</div>
+        {% endif %}
+        <form method="post" action="{{ url_for('recruiter.update_company') }}">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Company Name</label>
+              <input type="text" name="name" class="form-control" value="{{ company.name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Industry</label>
+              <input type="text" name="industry" class="form-control" value="{{ company.industry or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Website</label>
+              <input type="url" name="website" class="form-control" value="{{ company.website or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input type="text" name="location" class="form-control" value="{{ company.location or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" value="{{ company.email or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="text" name="phone" class="form-control" value="{{ company.phone or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">About the Company</label>
+              <textarea name="description" rows="4" class="form-control">{{ company.description or '' }}</textarea>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-3 btn-icon"><i class="fa-solid fa-floppy-disk"></i> Save Company</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-user-tie me-2"></i>Recruiter Information</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('recruiter.update_profile') }}">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Recruiter Name</label>
+              <input type="text" name="name" class="form-control" value="{{ recruiter.name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Designation</label>
+              <input type="text" name="designation" class="form-control" value="{{ recruiter.designation }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="text" name="phone" class="form-control" value="{{ recruiter.phone or '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-3 btn-icon"><i class="fa-solid fa-floppy-disk"></i> Save Recruiter</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-key me-2"></i>Account</div>
+      <div class="card-body">
+        <p class="muted small">Manage your login password.</p>
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-primary"><i class="fa-solid fa-key me-1"></i>Change Password</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

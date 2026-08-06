@@ -1,0 +1,68 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}My Jobs — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}My Jobs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <form method="get" action="{{ url_for('recruiter.jobs') }}" class="d-flex gap-2">
+    <select name="status" class="form-select form-select-sm" style="width:150px;" onchange="this.form.submit()">
+      <option value="">All Status</option>
+      <option value="active" {{ 'selected' if status == 'active' }}>Open</option>
+      <option value="inactive" {{ 'selected' if status == 'inactive' }}>Closed</option>
+    </select>
+  </form>
+  <a href="{{ url_for('recruiter.job_new') }}" class="btn btn-primary btn-icon"><i class="fa-solid fa-plus"></i> Post New Job</a>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Title</th><th>Package</th><th>Deadline</th><th>Applicants</th><th>Status</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+            <tr>
+              <td>
+                <a href="{{ url_for('recruiter.job_detail', job_id=job.id) }}" class="fw-semibold text-primary">{{ job.title }}</a>
+                <div class="small muted">{{ job.location or 'N/A' }}</div>
+              </td>
+              <td>{{ job.package }} LPA</td>
+              <td class="small">{{ job.deadline.strftime('%d %b %Y') }}</td>
+              <td>{{ job.applications|length }}</td>
+              <td><span class="badge-status {{ 'status-applied' if job.is_open else 'status-rejected' }}">{{ 'Open' if job.is_open else 'Closed' }}</span></td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a href="{{ url_for('recruiter.job_applicants', job_id=job.id) }}" class="btn btn-outline-primary" title="Applicants"><i class="fa-solid fa-users"></i></a>
+                  <a href="{{ url_for('recruiter.job_edit', job_id=job.id) }}" class="btn btn-outline-primary" title="Edit"><i class="fa-solid fa-pen"></i></a>
+                  <form method="post" action="{{ url_for('recruiter.job_toggle', job_id=job.id) }}" class="d-inline">
+                    <button class="btn btn-outline-secondary" title="Open/Close">
+                      <i class="fa-solid {{ 'fa-eye-slash' if job.is_open else 'fa-eye' }}"></i>
+                    </button>
+                  </form>
+                  <form method="post" action="{{ url_for('recruiter.job_delete', job_id=job.id) }}" class="d-inline"
+                        onsubmit="return confirmAction('Delete this job permanently?')">
+                    <button class="btn btn-outline-danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state py-4">
+                  <i class="fa-solid fa-briefcase"></i>
+                  <p class="mt-2 mb-0">No jobs posted yet.</p>
+                  <a href="{{ url_for('recruiter.job_new') }}" class="btn btn-primary mt-3">Post Your First Job</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

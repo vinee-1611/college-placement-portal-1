@@ -1,0 +1,65 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Reports — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Reports &amp; Statistics{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <ul class="nav nav-pills gap-1">
+      {% set report_types = [('placed', 'Placed Students'), ('company', 'Company Wise'), ('department', 'Department Wise'),
+                             ('cgpa', 'CGPA Wise'), ('applications', 'Applications'), ('interviews', 'Interviews')] %}
+      {% for key, label in report_types %}
+        <li class="nav-item">
+          <a class="nav-link {{ 'active' if report_type == key }}" href="{{ url_for('admin.reports', type=key) }}">{{ label }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fa-solid fa-chart-column me-2"></i>
+      {% for key, label in [('placed', 'Placed Students'), ('company', 'Company Wise'), ('department', 'Department Wise'), ('cgpa', 'CGPA Wise'), ('applications', 'Applications'), ('interviews', 'Interviews')] %}
+        {% if report_type == key %}{{ label }}{% endif %}
+      {% endfor %}
+    </span>
+    <a href="{{ url_for('admin.export_applications') }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i>Export Data</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>{% for c in columns %}<th>{{ c }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              {% if report_type == 'placed' %}
+                <td>{{ row.roll }}</td><td>{{ row.name }}</td><td>{{ row.department }}</td><td>{{ row.cgpa }}</td>
+                <td>{{ row.job }}</td><td>{{ row.company }}</td><td>{{ row.package }}</td><td>{{ row.date }}</td>
+              {% elif report_type == 'company' %}
+                <td class="fw-semibold">{{ row.name }}</td>
+                <td>{% if row.approved %}<span class="badge-status status-selected">Yes</span>{% else %}<span class="badge-status status-pending">No</span>{% endif %}</td>
+                <td>{{ row.jobs }}</td><td>{{ row.applications }}</td><td>{{ row.selected }}</td>
+              {% elif report_type in ('department', 'cgpa') %}
+                <td class="fw-semibold">{{ row.name }}</td><td>{{ row.total }}</td><td>{{ row.placed }}</td><td>{{ row.pct }}%</td>
+              {% elif report_type == 'applications' %}
+                <td>{{ row.name }}</td><td>{{ row.roll }}</td><td>{{ row.job }}</td><td>{{ row.company }}</td>
+                <td><span class="badge-status status-{{ row.status }}">{{ row.status }}</span></td><td class="small">{{ row.date.strftime('%d %b %Y') if row.date is not string else row.date }}</td>
+              {% elif report_type == 'interviews' %}
+                <td>{{ row.name }}</td><td>{{ row.job }}</td><td>{{ row.company }}</td><td>{{ row.date }}</td>
+                <td>{{ row.time or 'TBA' }}</td><td>{{ row.round }}</td><td>{{ row.mode }}</td>
+                <td><span class="badge-status status-{{ row.status|lower }}">{{ row.status }}</span></td>
+              {% endif %}
+            </tr>
+          {% else %}
+            <tr><td colspan="{{ columns|length }}"><div class="empty-state py-4"><i class="fa-solid fa-chart-column"></i><p class="mt-2 mb-0">No data available for this report.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

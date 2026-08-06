@@ -1,0 +1,74 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Recruiters — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Manage Recruiters{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('admin.recruiters') }}" class="row g-2 align-items-end">
+      <div class="col-md-9">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Recruiter, company, email..." value="{{ search }}">
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="{{ url_for('admin.recruiters') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Recruiter</th><th>Company</th><th>Designation</th><th>Email</th><th>Company Status</th><th>Account</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for r in recruiters.items %}
+            <tr>
+              <td class="fw-semibold">{{ r.name }}</td>
+              <td>{{ r.company.name }}</td>
+              <td class="small">{{ r.designation }}</td>
+              <td class="small">{{ r.user.email }}</td>
+              <td>
+                {% if r.company.is_approved %}
+                  <span class="badge-status status-selected">Approved</span>
+                {% else %}
+                  <span class="badge-status status-pending">Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if r.user.is_active %}
+                  <span class="badge bg-success-subtle text-success">Active</span>
+                {% else %}
+                  <span class="badge bg-danger-subtle text-danger">Inactive</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  {% if not r.company.is_approved %}
+                    <form method="post" action="{{ url_for('admin.recruiter_approve', recruiter_id=r.id) }}">
+                      <button class="btn btn-success"><i class="fa-solid fa-circle-check me-1"></i>Approve</button>
+                    </form>
+                  {% endif %}
+                  <form method="post" action="{{ url_for('admin.recruiter_toggle', recruiter_id=r.id) }}">
+                    <button class="btn btn-outline-secondary" title="Activate/Deactivate">
+                      <i class="fa-solid {{ 'fa-toggle-on' if r.user.is_active else 'fa-toggle-off' }}"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7"><div class="empty-state py-4"><i class="fa-solid fa-user-tie"></i><p class="mt-2 mb-0">No recruiters found.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% include 'layouts/_pagination.html' %}
+{% endblock %}

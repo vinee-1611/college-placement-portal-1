@@ -1,0 +1,86 @@
+<aside class="sidebar" id="sidebar">
+  <a href="{{ url_for('main.index') }}" class="brand">
+    <i class="fa-solid fa-graduation-cap"></i>
+    <span>{{ setting('college_name', 'College') }}</span>
+  </a>
+
+  {% if current_user.role == 'student' %}
+    <div class="section-label">Student Menu</div>
+    <a href="{{ url_for('student.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'student.dashboard' }}">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </a>
+    <a href="{{ url_for('student.jobs') }}" class="nav-link {{ 'active' if request.endpoint in ['student.jobs', 'student.job_detail'] }}">
+      <i class="fa-solid fa-briefcase"></i> Browse Jobs
+    </a>
+    <a href="{{ url_for('student.applications') }}" class="nav-link {{ 'active' if request.endpoint == 'student.applications' }}">
+      <i class="fa-solid fa-file-signature"></i> My Applications
+    </a>
+    <a href="{{ url_for('student.interviews') }}" class="nav-link {{ 'active' if request.endpoint == 'student.interviews' }}">
+      <i class="fa-solid fa-calendar-days"></i> Interviews
+    </a>
+    <a href="{{ url_for('student.offers') }}" class="nav-link {{ 'active' if request.endpoint == 'student.offers' }}">
+      <i class="fa-solid fa-award"></i> Offers
+    </a>
+    <a href="{{ url_for('student.profile') }}" class="nav-link {{ 'active' if request.endpoint == 'student.profile' }}">
+      <i class="fa-solid fa-id-card"></i> Profile
+    </a>
+
+  {% elif current_user.role == 'recruiter' %}
+    <div class="section-label">Recruiter Menu</div>
+    <a href="{{ url_for('recruiter.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'recruiter.dashboard' }}">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </a>
+    <a href="{{ url_for('recruiter.jobs') }}" class="nav-link {{ 'active' if request.endpoint.startswith('recruiter.job') }}">
+      <i class="fa-solid fa-briefcase"></i> My Jobs
+    </a>
+    <a href="{{ url_for('recruiter.applicants') }}" class="nav-link {{ 'active' if request.endpoint in ['recruiter.applicants', 'recruiter.applicant_detail'] }}">
+      <i class="fa-solid fa-users"></i> Applicants
+    </a>
+    <a href="{{ url_for('recruiter.interviews') }}" class="nav-link {{ 'active' if request.endpoint == 'recruiter.interviews' }}">
+      <i class="fa-solid fa-calendar-days"></i> Interviews
+    </a>
+    <a href="{{ url_for('recruiter.offers') }}" class="nav-link {{ 'active' if request.endpoint == 'recruiter.offers' }}">
+      <i class="fa-solid fa-file-invoice"></i> Offers
+    </a>
+    <a href="{{ url_for('recruiter.profile') }}" class="nav-link {{ 'active' if request.endpoint in ['recruiter.profile', 'recruiter.update_profile', 'recruiter.update_company'] }}">
+      <i class="fa-solid fa-building"></i> Company Profile
+    </a>
+
+  {% elif current_user.role == 'admin' %}
+    <div class="section-label">Admin Menu</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin.students') }}" class="nav-link {{ 'active' if request.endpoint in ['admin.students', 'admin.student_detail'] }}">
+      <i class="fa-solid fa-user-graduate"></i> Students
+    </a>
+    <a href="{{ url_for('admin.recruiters') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.recruiters' }}">
+      <i class="fa-solid fa-user-tie"></i> Recruiters
+    </a>
+    <a href="{{ url_for('admin.companies') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.companies' }}">
+      <i class="fa-solid fa-building"></i> Companies
+    </a>
+    <a href="{{ url_for('admin.jobs') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.jobs' }}">
+      <i class="fa-solid fa-briefcase"></i> Jobs
+    </a>
+    <a href="{{ url_for('admin.applications') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.applications' }}">
+      <i class="fa-solid fa-file-signature"></i> Applications
+    </a>
+    <a href="{{ url_for('admin.interviews') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.interviews' }}">
+      <i class="fa-solid fa-calendar-days"></i> Interviews
+    </a>
+    <a href="{{ url_for('admin.announcements') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.announcements' }}">
+      <i class="fa-solid fa-bullhorn"></i> Announcements
+    </a>
+    <a href="{{ url_for('admin.reports') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.reports' }}">
+      <i class="fa-solid fa-chart-pie"></i> Reports
+    </a>
+    <a href="{{ url_for('admin.settings') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.settings' }}">
+      <i class="fa-solid fa-gear"></i> Settings
+    </a>
+  {% endif %}
+
+  <div class="sidebar-footer">
+    <i class="fa-solid fa-circle-info me-1"></i> {{ setting('site_name', 'Placement Portal') }}
+  </div>
+</aside>

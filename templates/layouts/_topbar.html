@@ -1,0 +1,53 @@
+<header class="topbar">
+  <button class="btn btn-outline-primary btn-sm toggle-sidebar" data-toggle-sidebar>
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="flex-grow-1">
+    <h6 class="mb-0 page-title">{{ self.page_heading() if self.page_heading is defined else '' }}</h6>
+  </div>
+
+  <div class="dropdown">
+    <a href="#" class="bell-icon text-decoration-none" data-bs-toggle="dropdown" data-bs-display="static">
+      <i class="fa-regular fa-bell"></i>
+      {% if current_user.unread_notifications() %}
+        <span class="badge-dot">{{ current_user.unread_notifications() }}</span>
+      {% endif %}
+    </a>
+    <div class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 320px;">
+      <div class="px-3 py-2 fw-bold border-bottom">Notifications</div>
+      {% set recent = current_user.recent_notifications(5) %}
+      {% if recent %}
+        {% for n in recent %}
+          <a class="dropdown-item px-3 py-2 {{ '' if n.is_read else 'notification-item unread' }}" href="{{ n.link or url_for('main.index') }}">
+            <div class="small fw-semibold">{{ n.title }}</div>
+            {% if n.message %}<div class="small muted">{{ n.message }}</div>{% endif %}
+            <div class="small text-primary">{{ n.created_at.strftime('%d %b, %I:%M %p') }}</div>
+          </a>
+        {% endfor %}
+        <form method="post" action="{{ url_for('main.mark_notifications_read') }}">
+          <button class="dropdown-item text-center small text-primary" type="submit">Mark all as read</button>
+        </form>
+      {% else %}
+        <div class="px-3 py-3 small muted text-center">No notifications yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="#" class="user-chip text-decoration-none" data-bs-toggle="dropdown" data-bs-display="static">
+      <span class="avatar">{{ current_user.email[0]|upper }}</span>
+      <span class="d-none d-md-block">
+        <span class="d-block fw-semibold small">{{ current_user.email }}</span>
+        <span class="d-block text-uppercase small text-primary fw-bold">{{ current_user.role }}</span>
+      </span>
+      <i class="fa-solid fa-chevron-down small muted"></i>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end shadow border-0">
+      <a class="dropdown-item" href="{{ url_for('auth.change_password') }}"><i class="fa-solid fa-key me-2"></i>Change Password</a>
+      <a class="dropdown-item" href="{{ url_for('main.index') }}"><i class="fa-solid fa-house me-2"></i>Home</a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,78 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Companies — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Manage Companies{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('admin.companies') }}" class="row g-2 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Company, industry, location..." value="{{ search }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Approval</label>
+        <select name="approval" class="form-select">
+          <option value="">All</option>
+          <option value="approved" {{ 'selected' if approval == 'approved' }}>Approved</option>
+          <option value="pending" {{ 'selected' if approval == 'pending' }}>Pending</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="{{ url_for('admin.companies') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fa-solid fa-building me-2"></i>Companies</span>
+    <a href="{{ url_for('admin.export_companies') }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i>Export CSV</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Company</th><th>Industry</th><th>Location</th><th>Jobs</th><th>Recruiters</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for c in companies.items %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ c.name }}</div>
+                {% if c.website %}<div class="small muted">{{ c.website }}</div>{% endif %}
+              </td>
+              <td class="small">{{ c.industry or '—' }}</td>
+              <td class="small">{{ c.location or '—' }}</td>
+              <td>{{ c.jobs|length }}</td>
+              <td>{{ c.recruiters|length }}</td>
+              <td>
+                {% if c.is_approved %}
+                  <span class="badge-status status-selected">Approved</span>
+                {% else %}
+                  <span class="badge-status status-pending">Pending</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <form method="post" action="{{ url_for('admin.company_approve', company_id=c.id) }}">
+                  {% if c.is_approved %}
+                    <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-circle-xmark me-1"></i>Mark Pending</button>
+                  {% else %}
+                    <button class="btn btn-sm btn-success"><i class="fa-solid fa-circle-check me-1"></i>Approve</button>
+                  {% endif %}
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7"><div class="empty-state py-4"><i class="fa-solid fa-building"></i><p class="mt-2 mb-0">No companies found.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% include 'layouts/_pagination.html' %}
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Admin Dashboard — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h4 class="page-title mb-1">Welcome, {{ current_user.admin.name }}!</h4>
+<p class="muted mb-4">Placement overview across the campus.</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card blue">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.students }}</div><div class="label">Total Students</div></div>
+        <i class="fa-solid fa-user-graduate icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card green">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.placed }}</div><div class="label">Placed Students</div></div>
+        <i class="fa-solid fa-award icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card purple">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.companies }}</div><div class="label">Companies</div></div>
+        <i class="fa-solid fa-building icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card orange">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ pending_companies }}</div><div class="label">Pending Approvals</div></div>
+        <i class="fa-solid fa-clock icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card teal">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.jobs }}</div><div class="label">Total Jobs</div></div>
+        <i class="fa-solid fa-briefcase icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card rose">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.applications }}</div><div class="label">Applications</div></div>
+        <i class="fa-solid fa-file-signature icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card blue">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.selected }}</div><div class="label">Selections</div></div>
+        <i class="fa-solid fa-user-check icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card green">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.ratio }}%</div><div class="label">Selection Ratio</div></div>
+        <i class="fa-solid fa-percent icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-file-signature me-2"></i>Recent Applications</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Student</th><th>Job</th><th>Company</th><th>Status</th><th>Applied</th></tr></thead>
+            <tbody>
+              {% for a in applications %}
+                <tr>
+                  <td>{{ a.student.name }}<div class="small muted">{{ a.student.roll_number }}</div></td>
+                  <td>{{ a.job.title }}</td>
+                  <td>{{ a.job.company.name }}</td>
+                  <td><span class="badge-status status-{{ a.status }}">{{ a.status }}</span></td>
+                  <td class="small muted">{{ a.applied_at.strftime('%d %b %Y') }}</td>
+                </tr>
+              {% else %}
+                <tr><td colspan="5" class="text-center muted py-4">No applications yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-chart-pie me-2"></i>Applications by Status</div>
+      <div class="card-body">
+        <canvas id="statusChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-chart-column me-2"></i>Placed Students by Department</div>
+      <div class="card-body">
+        <canvas id="deptChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-building me-2"></i>Jobs by Company</div>
+      <div class="card-body">
+        <canvas id="companyChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+<script>
+(function () {
+  const statusData = {{ applications_by_status | map(attribute='1') | list | tojson }};
+  const statusLabels = {{ applications_by_status | map(attribute='0') | list | tojson }};
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: statusLabels,
+      datasets: [{ data: statusData, backgroundColor: ['#0d4fa0', '#d97706', '#7c3aed', '#16a34a', '#dc2626', '#14b8a6'] }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  const deptData = {{ placements_by_department | map(attribute='1') | list | tojson }};
+  const deptLabels = {{ placements_by_department | map(attribute='0') | list | tojson }};
+  new Chart(document.getElementById('deptChart'), {
+    type: 'bar',
+    data: {
+      labels: deptLabels,
+      datasets: [{ label: 'Placed', data: deptData, backgroundColor: '#0d4fa0', borderRadius: 6 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+
+  const companyData = {{ jobs_by_company | map(attribute='1') | list | tojson }};
+  const companyLabels = {{ jobs_by_company | map(attribute='0') | list | tojson }};
+  new Chart(document.getElementById('companyChart'), {
+    type: 'bar',
+    data: {
+      labels: companyLabels,
+      datasets: [{ label: 'Jobs', data: companyData, backgroundColor: '#00a8e8', borderRadius: 6 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+})();
+</script>
+{% endblock %}

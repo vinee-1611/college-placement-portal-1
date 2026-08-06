@@ -1,0 +1,91 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Student Registration — {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card wide fade-in-up">
+    <div class="auth-logo"><i class="fa-solid fa-user-graduate"></i></div>
+    <h3 class="text-center mb-1">Student Registration</h3>
+    <p class="text-center muted mb-4">Create your student account to start applying</p>
+
+    {% include 'layouts/_alerts.html' %}
+
+    <form method="post" action="{{ url_for('auth.register') }}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-control" required value="{{ request.form.get('name', '') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Roll Number</label>
+          <input type="text" name="roll_number" class="form-control" required value="{{ request.form.get('roll_number', '') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-control" required value="{{ request.form.get('email', '') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Phone (optional)</label>
+          <input type="text" name="phone" class="form-control" value="{{ request.form.get('phone', '') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Department</label>
+          <select name="department" class="form-select" required>
+            <option value="">Select department</option>
+            {% for d in departments %}
+              <option value="{{ d }}" {{ 'selected' if request.form.get('department') == d }}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Batch</label>
+          <select name="batch" class="form-select" required>
+            <option value="">Select batch</option>
+            {% for b in ['2021-2025', '2022-2026', '2023-2027', '2024-2028'] %}
+              <option value="{{ b }}" {{ 'selected' if request.form.get('batch') == b }}>{{ b }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Current Year</label>
+          <select name="year" class="form-select" required>
+            {% for y in [1, 2, 3, 4] %}
+              <option value="{{ y }}" {{ 'selected' if request.form.get('year', '4')|string == y|string }}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">CGPA (till last sem)</label>
+          <input type="number" step="0.01" min="0" max="10" name="cgpa" class="form-control" required value="{{ request.form.get('cgpa', '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Backlogs</label>
+          <input type="number" min="0" name="backlogs" class="form-control" required value="{{ request.form.get('backlogs', '0') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Skills (comma separated)</label>
+          <input type="text" name="skills" class="form-control" placeholder="Python, Java, SQL" value="{{ request.form.get('skills', '') }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" required>
+          <div class="form-text">Min 8 chars with upper, lower, digit &amp; symbol.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" name="confirm_password" class="form-control" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mt-4 btn-icon justify-content-center">
+        <i class="fa-solid fa-user-plus"></i> Create Account
+      </button>
+    </form>
+
+    <div class="text-center small mt-3">
+      Already registered? <a href="{{ url_for('auth.login') }}">Login</a> &middot;
+      Company? <a href="{{ url_for('auth.register_recruiter') }}">Register here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

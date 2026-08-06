@@ -1,0 +1,18 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container-fluid flash-container">
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          {% for category, message in messages %}
+            {% set icon = {'success': 'fa-circle-check', 'danger': 'fa-circle-xmark', 'warning': 'fa-triangle-exclamation', 'info': 'fa-circle-info'} %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
+              <i class="fa-solid {{ icon.get(category, 'fa-circle-info') }} me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endwith %}

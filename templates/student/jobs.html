@@ -1,0 +1,75 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Browse Jobs — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Browse Jobs{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('student.jobs') }}" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Title, company, skill..." value="{{ search }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Location</label>
+        <input type="text" name="location" class="form-control" placeholder="Hyderabad, Remote..." value="{{ location }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Min Package (LPA)</label>
+        <input type="number" step="0.5" min="0" name="min_package" class="form-control" placeholder="e.g. 5" value="{{ min_package }}">
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass me-1"></i>Search</button>
+        <a href="{{ url_for('student.jobs') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if jobs %}
+  <div class="row g-3">
+    {% for job in jobs %}
+      <div class="col-md-6 col-xl-4">
+        <div class="card card-hover h-100 fade-in-up">
+          <div class="card-body">
+            <div class="d-flex align-items-start gap-3 mb-2">
+              <div class="company-badge"><i class="fa-solid fa-building"></i></div>
+              <div class="flex-grow-1">
+                <h6 class="card-title mb-0">{{ job.title }}</h6>
+                <div class="muted small">{{ job.company.name }}</div>
+              </div>
+              {% if job.id in applied_ids %}
+                <span class="badge-status status-selected">Applied</span>
+              {% endif %}
+            </div>
+            <p class="small muted">{{ job.description|truncate(110) }}</p>
+            <div class="d-flex flex-wrap gap-2 small mb-2">
+              <span class="badge bg-light text-primary"><i class="fa-solid fa-indian-rupee-sign me-1"></i>{{ job.package }} LPA</span>
+              <span class="badge bg-light text-primary"><i class="fa-solid fa-location-dot me-1"></i>{{ job.location or 'N/A' }}</span>
+              <span class="badge bg-light text-primary"><i class="fa-solid fa-chart-line me-1"></i>CGPA &ge; {{ job.min_cgpa }}</span>
+            </div>
+            {% for skill in job.skills_list()[:4] %}
+              <span class="skill-tag">{{ skill }}</span>
+            {% endfor %}
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <small class="muted"><i class="fa-regular fa-clock me-1"></i>Deadline {{ job.deadline.strftime('%d %b %Y') }}</small>
+              {% if job.id in applied_ids %}
+                <a href="{{ url_for('student.job_detail', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">Details</a>
+              {% else %}
+                <a href="{{ url_for('student.job_detail', job_id=job.id) }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-arrow-right me-1"></i>Apply</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <i class="fa-solid fa-briefcase"></i>
+    <p class="mt-2">No jobs match your search or eligibility criteria.</p>
+    <a href="{{ url_for('student.jobs') }}" class="btn btn-outline-primary">Clear Filters</a>
+  </div>
+{% endif %}
+{% endblock %}

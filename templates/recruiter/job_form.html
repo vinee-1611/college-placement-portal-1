@@ -1,0 +1,86 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}{{ 'Edit Job' if job else 'Post Job' }} — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}{{ 'Edit Job' if job else 'Post New Job' }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="card">
+      <div class="card-header">
+        <i class="fa-solid fa-briefcase me-2"></i>{{ 'Edit Job: ' + job.title if job else 'Job Details' }}
+      </div>
+      <div class="card-body">
+        <form method="post"
+              action="{{ url_for('recruiter.job_edit', job_id=job.id) if job else url_for('recruiter.job_new') }}">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Job Title</label>
+              <input type="text" name="title" class="form-control" required
+                     value="{{ request.form.get('title', job.title if job else '') }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Employment Type</label>
+              <select name="employment_type" class="form-select">
+                {% for t in employment_types %}
+                  <option value="{{ t }}" {{ 'selected' if (job and job.employment_type == t) or request.form.get('employment_type') == t }}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Job Description</label>
+              <textarea name="description" rows="5" class="form-control" required>{{ request.form.get('description', job.description if job else '') }}</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Required Skills</label>
+              <input type="text" name="skills" class="form-control"
+                     placeholder="Python, SQL, Communication"
+                     value="{{ request.form.get('skills', job.skills if job else '') }}">
+              <div class="form-text">Comma separated</div>
+            </div>
+
+            <h6 class="form-section col-12 mt-2"><i class="fa-solid fa-list-check me-2"></i>Eligibility Criteria</h6>
+            <div class="col-md-4">
+              <label class="form-label">Minimum CGPA</label>
+              <input type="number" step="0.1" min="0" max="10" name="min_cgpa" class="form-control" required
+                     value="{{ request.form.get('min_cgpa', job.min_cgpa if job else 0) }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Max Backlogs</label>
+              <input type="number" min="0" name="max_backlogs" class="form-control" required
+                     value="{{ request.form.get('max_backlogs', job.max_backlogs if job else 0) }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Vacancies</label>
+              <input type="number" min="1" name="vacancies" class="form-control" required
+                     value="{{ request.form.get('vacancies', job.vacancies if job else 1) }}">
+            </div>
+
+            <h6 class="form-section col-12 mt-2"><i class="fa-solid fa-circle-info me-2"></i>Compensation &amp; Location</h6>
+            <div class="col-md-4">
+              <label class="form-label">Package (LPA)</label>
+              <input type="number" step="0.5" min="0" name="package" class="form-control" required
+                     value="{{ request.form.get('package', job.package if job else 0) }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Location</label>
+              <input type="text" name="location" class="form-control"
+                     value="{{ request.form.get('location', job.location if job else '') }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Application Deadline</label>
+              <input type="date" name="deadline" class="form-control" min="{{ today }}" required
+                     value="{{ request.form.get('deadline', job.deadline.isoformat() if job else '') }}">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-4 btn-icon">
+            <i class="fa-solid {{ 'fa-floppy-disk' if job else 'fa-paper-plane' }}"></i>
+            {{ 'Save Changes' if job else 'Post Job' }}
+          </button>
+          <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-outline-secondary mt-4">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

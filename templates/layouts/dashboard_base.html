@@ -1,0 +1,24 @@
+{% extends 'layouts/base.html' %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block body %}
+  <div class="dashboard-wrapper">
+    {% include 'layouts/_sidebar.html' %}
+    <div class="main-area">
+      {% include 'layouts/_topbar.html' %}
+      {% include 'layouts/_alerts.html' %}
+      <main class="dashboard-content">
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="text-center py-3 muted small">
+        &copy; {{ now().year }} {{ setting('college_name', 'College') }} &middot; {{ setting('site_name', 'Placement Portal') }}
+      </footer>
+    </div>
+  </div>
+  <div class="sidebar-overlay"></div>
+{% endblock %}
+
+{% block scripts %}
+  {% block dashboard_scripts %}{% endblock %}
+{% endblock %}

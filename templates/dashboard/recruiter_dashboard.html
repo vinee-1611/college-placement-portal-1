@@ -1,0 +1,142 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Recruiter Dashboard — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Recruiter Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="page-title mb-1">Welcome, {{ current_user.recruiter.name }}!</h4>
+    <div class="muted">
+      <i class="fa-solid fa-building me-1"></i>{{ company.name }} &middot;
+      {{ current_user.recruiter.designation }}
+    </div>
+  </div>
+  {% if company.is_approved %}
+    <span class="badge-status status-selected"><i class="fa-solid fa-circle-check me-1"></i>Approved</span>
+  {% else %}
+    <span class="badge-status status-pending"><i class="fa-solid fa-clock me-1"></i>Pending Approval</span>
+  {% endif %}
+</div>
+
+{% if not company.is_approved %}
+  <div class="alert alert-warning d-flex align-items-center">
+    <i class="fa-solid fa-triangle-exclamation me-3"></i>
+    <div>
+      Your company is awaiting approval from the placement office.
+      You can manage your profile now, but job posting will be enabled after approval.
+    </div>
+  </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card blue">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.jobs }}</div><div class="label">Jobs Posted</div></div>
+        <i class="fa-solid fa-briefcase icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card purple">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.applications }}</div><div class="label">Applicants</div></div>
+        <i class="fa-solid fa-users icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card orange">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.shortlisted }}</div><div class="label">Shortlisted</div></div>
+        <i class="fa-solid fa-user-check icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card green">
+      <div class="d-flex justify-content-between align-items-center">
+        <div><div class="value">{{ stats.selected }}</div><div class="label">Selections</div></div>
+        <i class="fa-solid fa-award icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fa-solid fa-briefcase me-2"></i>Recent Jobs</span>
+        <div>
+          <a href="{{ url_for('recruiter.job_new') }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus me-1"></i>Post Job</a>
+          <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+      </div>
+      <div class="card-body">
+        {% if recent_jobs %}
+          {% for job in recent_jobs %}
+            <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+              <div class="company-badge"><i class="fa-solid fa-briefcase"></i></div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold">{{ job.title }}</div>
+                <div class="small muted">{{ job.applications|length }} applicants &middot; deadline {{ job.deadline }}</div>
+              </div>
+              <span class="badge-status {{ 'status-applied' if job.is_open else 'status-rejected' }}">{{ 'Open' if job.is_open else 'Closed' }}</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state py-4">
+            <i class="fa-solid fa-briefcase"></i>
+            <p class="mt-2 mb-0">No jobs posted yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-users me-2"></i>Recent Applications</div>
+      <div class="card-body p-2">
+        {% if recent_applications %}
+          {% for a in recent_applications %}
+            <a href="{{ url_for('recruiter.applicant_detail', application_id=a.id) }}" class="dropdown-item px-2 py-2">
+              <div class="d-flex justify-content-between">
+                <span class="small fw-semibold">{{ a.student.name }}</span>
+                <span class="badge-status status-{{ a.status }}">{{ a.status }}</span>
+              </div>
+              <div class="small muted">{{ a.job.title }}</div>
+            </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state py-3">
+            <i class="fa-solid fa-users"></i>
+            <p class="mt-2 mb-0">No applications yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="fa-regular fa-bell me-2"></i>Notifications</div>
+      <div class="card-body p-2">
+        {% if notifications %}
+          {% for n in notifications %}
+            <a href="{{ n.link or url_for('main.index') }}" class="dropdown-item px-2 py-2 {{ '' if n.is_read else 'notification-item unread' }}">
+              <div class="small fw-semibold">{{ n.title }}</div>
+              {% if n.message %}<div class="small muted">{{ n.message }}</div>{% endif %}
+            </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state py-3">
+            <i class="fa-regular fa-bell"></i>
+            <p class="mt-2 mb-0">No notifications yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

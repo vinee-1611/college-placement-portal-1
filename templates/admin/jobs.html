@@ -1,0 +1,72 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Jobs — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Manage Jobs{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('admin.jobs') }}" class="row g-2 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Job title, company, location..." value="{{ search }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Company</label>
+        <select name="company" class="form-select">
+          <option value="">All Companies</option>
+          {% for c in companies %}
+            <option value="{{ c.id }}" {{ 'selected' if company_filter == c.id|string }}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="{{ url_for('admin.jobs') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fa-solid fa-briefcase me-2"></i>Jobs</span>
+    <a href="{{ url_for('admin.export_jobs') }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i>Export CSV</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Job</th><th>Company</th><th>Package</th><th>Deadline</th><th>Applicants</th><th>Status</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for job in jobs.items %}
+            <tr>
+              <td class="fw-semibold">{{ job.title }}</td>
+              <td class="small">{{ job.company.name }}</td>
+              <td>{{ job.package }} LPA</td>
+              <td class="small">{{ job.deadline.strftime('%d %b %Y') }}</td>
+              <td>{{ job.applications|length }}</td>
+              <td><span class="badge-status {{ 'status-applied' if job.is_open else 'status-rejected' }}">{{ 'Open' if job.is_open else 'Closed' }}</span></td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <form method="post" action="{{ url_for('admin.job_toggle', job_id=job.id) }}">
+                    <button class="btn btn-outline-secondary" title="Open/Close"><i class="fa-solid {{ 'fa-eye-slash' if job.is_open else 'fa-eye' }}"></i></button>
+                  </form>
+                  <form method="post" action="{{ url_for('admin.job_delete', job_id=job.id) }}"
+                        onsubmit="return confirmAction('Delete this job permanently?')">
+                    <button class="btn btn-outline-danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7"><div class="empty-state py-4"><i class="fa-solid fa-briefcase"></i><p class="mt-2 mb-0">No jobs found.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% include 'layouts/_pagination.html' %}
+{% endblock %}

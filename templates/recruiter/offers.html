@@ -1,0 +1,48 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Offers — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Offer Letters{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Student</th><th>Job</th><th>Package</th><th>Offer Date</th><th>Status</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for offer in offers %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ offer.application.student.name }}</div>
+                <div class="small muted">{{ offer.application.student.roll_number }}</div>
+              </td>
+              <td>{{ offer.application.job.title }}</td>
+              <td>{{ offer.package or offer.application.job.package }} LPA</td>
+              <td class="small">{{ offer.offer_date.strftime('%d %b %Y') if offer.offer_date else '—' }}</td>
+              <td><span class="badge-status status-{{ offer.status|lower }}">{{ offer.status }}</span></td>
+              <td class="text-end">
+                {% if offer.offer_letter %}
+                  <a href="{{ url_for('recruiter.download_offer', offer_id=offer.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fa-solid fa-download me-1"></i>Download
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state py-4">
+                  <i class="fa-solid fa-file-invoice"></i>
+                  <p class="mt-2 mb-0">No offer letters uploaded yet.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

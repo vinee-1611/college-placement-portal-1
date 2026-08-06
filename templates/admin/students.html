@@ -1,0 +1,95 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Students — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('admin.students') }}" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Name, roll number, email..." value="{{ search }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Department</label>
+        <select name="department" class="form-select">
+          <option value="">All Departments</option>
+          {% for d in departments %}
+            <option value="{{ d }}" {{ 'selected' if department == d }}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Batch</label>
+        <select name="batch" class="form-select">
+          <option value="">All Batches</option>
+          {% for b in batches %}
+            <option value="{{ b }}" {{ 'selected' if batch == b }}>{{ b }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="{{ url_for('admin.students') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fa-solid fa-user-graduate me-2"></i>Students</span>
+    <a href="{{ url_for('admin.export_students') }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-csv me-1"></i>Export CSV</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Roll No</th><th>Name</th><th>Department</th><th>CGPA</th><th>Backlogs</th><th>Placed</th><th>Active</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for s in students.items %}
+            <tr>
+              <td class="small">{{ s.roll_number }}</td>
+              <td>
+                <a href="{{ url_for('admin.student_detail', student_id=s.id) }}" class="fw-semibold text-primary">{{ s.name }}</a>
+              </td>
+              <td class="small">{{ s.department }}</td>
+              <td>{{ s.cgpa }}</td>
+              <td>{{ s.backlogs }}</td>
+              <td>
+                {% if s.placed %}
+                  <span class="badge-status status-selected">Placed</span>
+                {% else %}
+                  <span class="badge-status status-applied">Not Placed</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if s.user.is_active %}
+                  <span class="badge bg-success-subtle text-success">Active</span>
+                {% else %}
+                  <span class="badge bg-danger-subtle text-danger">Inactive</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a href="{{ url_for('admin.student_detail', student_id=s.id) }}" class="btn btn-outline-primary"><i class="fa-solid fa-eye"></i></a>
+                  <form method="post" action="{{ url_for('admin.student_toggle', student_id=s.id) }}">
+                    <button class="btn btn-outline-secondary" title="Activate/Deactivate">
+                      <i class="fa-solid {{ 'fa-toggle-on' if s.user.is_active else 'fa-toggle-off' }}"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="8"><div class="empty-state py-4"><i class="fa-solid fa-user-graduate"></i><p class="mt-2 mb-0">No students found.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% include 'layouts/_pagination.html' %}
+{% endblock %}

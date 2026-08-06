@@ -1,0 +1,80 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}Applicants — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Applicants{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{{ url_for('recruiter.applicants') }}" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input type="text" name="q" class="form-control" placeholder="Name, roll number, department..." value="{{ search }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Job</label>
+        <select name="job" class="form-select">
+          <option value="">All Jobs</option>
+          {% for j in jobs %}
+            <option value="{{ j.id }}" {{ 'selected' if job_filter == j.id|string }}>{{ j.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+          <option value="">All Status</option>
+          {% for s in ['applied', 'shortlisted', 'interview', 'selected', 'offer', 'rejected'] %}
+            <option value="{{ s }}" {{ 'selected' if status_filter == s }}>{{ s|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="{{ url_for('recruiter.applicants') }}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Student</th><th>Job</th><th>CGPA</th><th>Backlogs</th><th>Applied On</th><th>Status</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for a in applications %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ a.student.name }}</div>
+                <div class="small muted">{{ a.student.roll_number }}</div>
+              </td>
+              <td>{{ a.job.title }}</td>
+              <td>{{ a.student.cgpa }}</td>
+              <td>{{ a.student.backlogs }}</td>
+              <td class="small muted">{{ a.applied_at.strftime('%d %b %Y') }}</td>
+              <td><span class="badge-status status-{{ a.status }}">{{ a.status }}</span></td>
+              <td class="text-end">
+                <a href="{{ url_for('recruiter.applicant_detail', application_id=a.id) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="fa-solid fa-eye me-1"></i>Review
+                </a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7">
+                <div class="empty-state py-4">
+                  <i class="fa-solid fa-users"></i>
+                  <p class="mt-2 mb-0">No applicants found.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

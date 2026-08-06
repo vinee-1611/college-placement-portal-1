@@ -1,0 +1,73 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}{{ job.title }} — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}Job Details{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="mb-1">{{ job.title }}</h5>
+        <div class="muted small mb-3">{{ job.company.name }} &middot; {{ job.employment_type }}</div>
+        <div class="row g-2 text-center">
+          <div class="col-6 p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.package }} LPA</div><small class="muted">Package</small></div>
+          <div class="col-6 p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.vacancies }}</div><small class="muted">Vacancies</small></div>
+          <div class="col-6 p-2 bg-light rounded"><div class="fw-bold text-primary">&ge;{{ job.min_cgpa }}</div><small class="muted">Min CGPA</small></div>
+          <div class="col-6 p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.max_backlogs }}</div><small class="muted">Max Backlogs</small></div>
+          <div class="col-12 p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.location or 'N/A' }}</div><small class="muted">Location</small></div>
+        </div>
+        <div class="mt-3">
+          <span class="badge-status {{ 'status-applied' if job.is_open else 'status-rejected' }}">{{ 'Open' if job.is_open else 'Closed' }}</span>
+          <span class="muted small ms-2">Deadline {{ job.deadline.strftime('%d %b %Y') }}</span>
+        </div>
+        <div class="d-grid gap-2 mt-3">
+          <a href="{{ url_for('recruiter.job_edit', job_id=job.id) }}" class="btn btn-outline-primary"><i class="fa-solid fa-pen me-1"></i>Edit Job</a>
+          <a href="{{ url_for('recruiter.job_applicants', job_id=job.id) }}" class="btn btn-primary"><i class="fa-solid fa-users me-1"></i>View Applicants ({{ job.applications|length }})</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-align-left me-2"></i>Description</div>
+      <div class="card-body"><p class="mb-0">{{ job.description }}</p></div>
+    </div>
+    <div class="card mb-4">
+      <div class="card-header"><i class="fa-solid fa-wrench me-2"></i>Required Skills</div>
+      <div class="card-body">
+        {% for skill in job.skills_list() %}
+          <span class="skill-tag">{{ skill }}</span>
+        {% else %}
+          <span class="muted">No specific skills listed.</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-users me-2"></i>Applicants</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Student</th><th>Roll No</th><th>CGPA</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for a in applications %}
+                <tr>
+                  <td>{{ a.student.name }}</td>
+                  <td class="small">{{ a.student.roll_number }}</td>
+                  <td>{{ a.student.cgpa }}</td>
+                  <td><span class="badge-status status-{{ a.status }}">{{ a.status }}</span></td>
+                  <td><a href="{{ url_for('recruiter.applicant_detail', application_id=a.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                </tr>
+              {% else %}
+                <tr><td colspan="5" class="text-center muted py-4">No applicants yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

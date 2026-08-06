@@ -1,0 +1,39 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Login — {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card fade-in-up">
+    <div class="auth-logo"><i class="fa-solid fa-right-to-bracket"></i></div>
+    <h3 class="text-center mb-1">Welcome Back</h3>
+    <p class="text-center muted mb-4">Sign in to your account</p>
+
+    {% include 'layouts/_alerts.html' %}
+
+    <form method="post" action="{{ url_for('auth.login', next=request.args.get('next')) }}">
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" required autofocus
+               value="{{ request.form.get('email', '') }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><a href="{{ url_for('auth.forgot_password') }}" class="small">Forgot password?</a></div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 btn-icon justify-content-center">
+        <i class="fa-solid fa-right-to-bracket"></i> Login
+      </button>
+    </form>
+
+    <hr class="my-4">
+    <div class="text-center small">
+      New student? <a href="{{ url_for('auth.register') }}">Create an account</a><br>
+      Are you a company? <a href="{{ url_for('auth.register_recruiter') }}">Register your company</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

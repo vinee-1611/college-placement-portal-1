@@ -1,0 +1,52 @@
+{% extends 'layouts/dashboard_base.html' %}
+
+{% block title %}My Applications — {{ setting('site_name') }}{% endblock %}
+{% block page_heading %}My Applications{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Job</th><th>Company</th><th>Applied On</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for a in applications %}
+            <tr>
+              <td>
+                <a href="{{ url_for('student.job_detail', job_id=a.job.id) }}" class="fw-semibold text-primary">{{ a.job.title }}</a>
+              </td>
+              <td>{{ a.job.company.name }}</td>
+              <td class="small muted">{{ a.applied_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+              <td><span class="badge-status status-{{ a.status }}">{{ a.status }}</span></td>
+              <td>
+                {% if a.status == 'applied' %}
+                  <form method="post" action="{{ url_for('student.withdraw_application', application_id=a.id) }}" class="d-inline"
+                        onsubmit="return confirmAction('Withdraw this application?')">
+                    <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-xmark me-1"></i>Withdraw</button>
+                  </form>
+                {% elif a.interviews %}
+                  <span class="badge-status status-scheduled">{{ a.interviews|length }} interview(s)</span>
+                {% elif a.offer %}
+                  <a href="{{ url_for('student.offers') }}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-invoice me-1"></i>View Offer</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-state py-4">
+                  <i class="fa-solid fa-file-signature"></i>
+                  <p class="mt-2 mb-0">You haven't applied to any jobs yet.</p>
+                  <a href="{{ url_for('student.jobs') }}" class="btn btn-primary mt-3">Browse Jobs</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

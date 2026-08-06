@@ -1,0 +1,79 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}About — {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg public-navbar sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('main.index') }}">
+      <i class="fa-solid fa-graduation-cap me-2"></i>{{ setting('site_name') }}
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="publicNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.announcements') }}">Announcements</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.about') }}">About</a></li>
+        {% if current_user.is_authenticated %}
+          <li class="nav-item"><a class="btn btn-outline-primary ms-lg-2" href="{{ url_for('auth.logout') }}">Logout</a></li>
+        {% else %}
+          <li class="nav-item"><a class="btn btn-outline-primary ms-lg-2" href="{{ url_for('auth.login') }}">Login</a></li>
+          <li class="nav-item"><a class="btn btn-primary ms-lg-2" href="{{ url_for('auth.register') }}">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-4"><i class="fa-solid fa-building-columns text-primary me-2"></i>About the Portal</h2>
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fa-solid fa-bullseye text-primary me-2"></i>Mission</h5>
+            <p class="card-text">
+              To digitize the entire campus placement process of {{ setting('college_name') }} — from student
+              registration and job posting to interviews, selections and offer letters — in a single, secure,
+              and transparent platform.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fa-solid fa-list-check text-primary me-2"></i>Key Capabilities</h5>
+            <ul class="card-text mb-0">
+              <li>Role-based accounts for students, recruiters and placement officers</li>
+              <li>Eligibility-based job applications with CGPA &amp; backlog checks</li>
+              <li>Resume and offer-letter document management (PDF)</li>
+              <li>Interview scheduling across multiple rounds</li>
+              <li>Real-time notifications and announcements</li>
+              <li>Reports, statistics and CSV data export</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-4">
+      <div class="card-body">
+        <h5 class="card-title"><i class="fa-solid fa-layer-group text-primary me-2"></i>Technology Stack</h5>
+        <p class="mb-0">
+          Python &middot; Flask &middot; SQLAlchemy &middot; SQLite &middot; HTML5 &middot; CSS3 &middot;
+          JavaScript &middot; Bootstrap 5 &middot; Chart.js &middot; Font Awesome &middot; Flask-Login &middot; Werkzeug
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer py-4">
+  <div class="container text-center small">
+    &copy; {{ now().year }} {{ setting('college_name') }} — {{ setting('site_name') }}
+  </div>
+</footer>
+{% endblock %}
