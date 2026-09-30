@@ -11,10 +11,12 @@ This manual explains the College Placement Portal from the perspective of all th
 | Role      | How to register                                             | What happens next |
 |-----------|-------------------------------------------------------------|-------------------|
 | Student   | Public → **Register** → student form (name, roll number, email, password) | Can log in immediately and complete the profile. |
-| Recruiter | Public → **Recruiter sign-up** → form (name, email, company name, company details, password) | Company is created with status **Pending**. Recruiter can log in; jobs can be posted only after the admin approves the company. |
+| Recruiter | Public → **Post Jobs** → short form (company name, company location, roles you are hiring for, total vacancies, your designation, your experience, email, password) | The company, your account and one live job posting per listed role are created automatically, vacancies are split across the roles, and you are logged straight in. |
 | Admin     | Seeded automatically. Login with `admin@placement.edu` / `Admin@123`. | Full control panel. |
 
 All passwords are stored as irreversible hashes and must meet the strength policy (minimum 8 characters, at least one uppercase letter, one lowercase letter, one digit and one special symbol).
+
+On first run the portal seeds demo data so **Browse Jobs** is never empty: 10 partner companies with 19 open positions, all in the 3.4–5.0 LPA band. The demo recruiters share the password `Recruiter@123`, e.g. `tcs.recruiter@demo.edu` / `Recruiter@123`.
 
 ### 1.2 Forgot Password
 
@@ -65,27 +67,35 @@ All application updates, interview schedules and announcements arrive here and v
 
 ## 3. Recruiter Panel
 
-### 3.1 Dashboard
-- Your company overview and approval status.
+### 3.1 Getting Started
+Sign-up is a single screen — you enter your company name, company location, the roles you are hiring for, your total vacancies, your designation and your experience, plus an email and password to log in with. The portal then:
+1. Creates your company and marks it **live** so your postings show up in student Browse Jobs.
+2. Creates your recruiter account and signs you in.
+3. Creates one job posting per role you listed, splitting your vacancies evenly across them (a role shows **On request** until you add a package).
+
+Use **My Jobs** to refine the generated postings — add the full description, required skills, package, eligibility criteria and a deadline.
+
+### 3.2 Dashboard
+- Your company overview and status.
 - Job posting activity and total applicants.
 - Counts of shortlisted and selected candidates.
 
-### 3.2 Company Profile
-Edit company name, industry, website, contact, location and description. The admin must **approve** the company before you can post jobs.
+### 3.3 Company Profile
+Edit company name, industry, website, contact, location and description, and update your own name, designation, experience and phone. The admin can suspend the company at any time, which immediately blocks further job posting.
 
-### 3.3 Jobs
+### 3.4 Jobs
 Create, edit, activate/deactivate and delete job postings. Each job specifies title, description, skills, minimum CGPA, maximum backlogs, vacancies, package (LPA), location, employment type, and application deadline.
 
-### 3.4 Applicants
+### 3.5 Applicants
 For any of your jobs, view all applicants in one place, search by name/roll, and update status:
 - **Shortlist** — move a candidate forward.
 - **Reject** — close that application.
 
-### 3.5 Interviews
+### 3.6 Interviews
 - Schedule an interview for a shortlisted applicant: date, time, location/mode (online/offline), and notes. The student is notified automatically.
 - Update the interview status; once complete, **select** or reject the candidate.
 
-### 3.6 Offers
+### 3.7 Offers
 Upload a signed **offer letter (PDF)** for a selected candidate. The student can download it from their Offers page.
 
 ---
@@ -99,10 +109,10 @@ Live charts and cards: students, recruiters, companies, jobs, applications, inte
 View and search all registered students, open a detailed profile (with resume), and delete a student if required.
 
 ### 4.3 Recruiters
-View recruiter accounts and their companies; **approve** or reject company registrations.
+View recruiter accounts and their companies, including the designation and experience each recruiter signed up with.
 
 ### 4.4 Companies
-Manage every company: approve/reject, edit, or remove. A company's status controls whether its recruiters can post jobs.
+Manage every company: suspend or reinstate it, edit, or remove. A company's status controls whether its recruiters can post jobs — suspending one immediately hides its jobs from student Browse Jobs.
 
 ### 4.5 Jobs
 Review, edit, activate/deactivate, or delete any job posting across all companies.
@@ -141,7 +151,7 @@ One-click CSV downloads for students, recruiters, companies, jobs, and applicati
 | Withdraw an application                | Student → Applications → Withdraw      |
 | Upload resume                          | Student → Profile                      |
 | Approve a company                      | Admin → Companies / Recruiters         |
-| Post a job                             | Recruiter → Jobs → New Job (after approval) |
+| Post a job                             | Recruiter → Jobs → New Job |
 | Schedule an interview                  | Recruiter → Applicants → Schedule Interview |
 | Upload offer letter                    | Recruiter → Applicants → Selected → Upload Offer |
 | Publish announcement                   | Admin → Announcements                  |

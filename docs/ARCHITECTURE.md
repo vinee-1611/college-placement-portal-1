@@ -83,6 +83,7 @@ PlacementPortal/
 │   ├── validators.py       # Email/phone/strong-password/PDF validation
 │   ├── files.py            # Resume/offer upload & download helpers
 │   ├── decorators.py       # Role-required decorators
+│   ├── demo_data.py        # Reference companies & openings seeded on first run
 │   └── queries.py          # Reusable query builders (eligibility, stats)
 │
 ├── docs/                   # All project documentation
@@ -94,20 +95,23 @@ PlacementPortal/
 | Blueprint  | Prefix        | Purpose                                            |
 |------------|---------------|----------------------------------------------------|
 | main       | `/`           | Landing page, announcements, about                 |
-| auth       | `/auth`       | Login, register, logout, forgot/reset password     |
+| auth       | `/auth`       | Login, quick recruiter signup, logout, forgot/reset password |
 | student    | `/student`    | Profile, resume, jobs, applications, interviews    |
 | recruiter  | `/recruiter`  | Company profile, jobs, applicants, interviews      |
 | admin      | `/admin`      | Manage all entities, reports, settings, export     |
 
 ## 5. Design Decisions
 
-- **Application factory** in `app.py` keeps the app configurable and testable.
+- **Application factory** in `app.py` keeps the app configurable and testable. It also owns the first-run bootstrap: `db.create_all()` → `_ensure_schema()` → `_seed_defaults()` (admin + settings) → `_seed_demo_jobs()` (demo companies/jobs, skipped when the `jobs` table is non-empty) → `_sync_demo_data()` (re-applies `utils/demo_data.py` to an already-seeded database).
 - **Extensions kept separate** (`extensions.py`) avoids circular imports.
 - **All models in `models.py`** as a single, clearly documented module.
 - **Business logic extracted to `utils/`** so routes stay thin and reusable.
 - **Role-based access** via decorators + Flask-Login `UserMixin` and a `role` column.
 - **Blue & white UI** with Bootstrap 5 sidebar layout, responsive for all devices.
-- **Security defaults**: password hashing (Werkzeug), CSRF tokens, parameterized queries (SQLAlchemy), auto-escaping templates (XSS protection), validated uploads.
+- **One-screen recruiter signup** — a single POST creates the company, the recruiter account and one job per listed role, then logs the recruiter in, so there is no empty-state onboarding.
+- **Lightweight additive migrations** — `_ensure_schema()` ALTERs tables for columns added to shipped models, because `create_all()` only creates missing tables.
+- **`utils/demo_data.py` as the single source of truth for demo content** — `_sync_demo_data()` re-applies it to an already-seeded database (so edits to the demo data take effect without deleting `database.db`) and pushes deadlines forward so demo postings never expire. Jobs that already have applications, and any job a recruiter or admin has deactivated (`is_active`), are never overwritten.
+- **Security defaults**: password hashing (Werkzeug), parameterized queries (SQLAlchemy), auto-escaping templates (XSS protection), validated uploads.
 
 ## 6. Module Boundaries (who talks to whom)
 

@@ -22,7 +22,7 @@ Models (SQLAlchemy ORM) <--> SQLite database
 - **Models** — `models.py` defines 11 ORM classes.
 - **Views** — Jinja2 templates in `templates/`, organised by role.
 - **Controllers** — route functions in `blueprints/`, organised by role.
-- **Helpers** — `utils/` (validators, decorators, files, notifications, queries).
+- **Helpers** — `utils/` (validators, decorators, files, notifications, queries, demo_data).
 
 ---
 
@@ -65,7 +65,7 @@ classDiagram
         +int user_id
         +str name
         +str designation
-        +str contact_email
+        +str experience
         +str contact_phone
         +int company_id
     }
@@ -166,7 +166,7 @@ classDiagram
 | Blueprint  | URL prefix     | Key routes |
 |------------|----------------|------------|
 | `main`     | `/`            | index, about, announcements, notifications (view/mark-read), uploaded_file |
-| `auth`     | `/auth`        | login, logout, register (student), register_recruiter, forgot/reset/change password |
+| `auth`     | `/auth`        | login, logout, student register, quick recruiter signup, forgot/reset/change password |
 | `student`  | `/student`     | dashboard, profile, resume upload/delete, jobs, job_detail, apply, withdraw, applications, interviews (join), offers, download_offer |
 | `recruiter`| `/recruiter`   | dashboard, company update, jobs CRUD, applicants, applicant_detail, schedule_interview, select/reject, offers (upload/download) |
 | `admin`    | `/admin`       | dashboard, students/recruiters/companies/jobs/applications/interviews management, approvals, announcements, reports, settings, CSV exports |

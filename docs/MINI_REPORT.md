@@ -2,7 +2,7 @@
 
 ## Abstract
 
-The College Placement Portal is a web-based campus recruitment management system that connects **students**, **recruiters**, and the **placement officer** on a single platform. Students register, build profiles, upload resumes, and apply to jobs they are eligible for. Recruiters post and manage jobs, review and shortlist applicants, schedule interviews, and upload offer letters. The placement officer approves companies, manages all records, publishes announcements, and views live placement statistics. The system automates eligibility checks, tracks the full application lifecycle, and notifies users in-app on every event.
+The College Placement Portal is a web-based campus recruitment management system that connects **students**, **recruiters**, and the **placement officer** on a single platform. Students register, build profiles, upload resumes, and apply to jobs they are eligible for. Recruiters sign up through a single short form and get live job postings instantly, then review and shortlist applicants, schedule interviews, and upload offer letters. The placement officer manages all records, suspends or reinstates companies, publishes announcements, and views live placement statistics. The system automates eligibility checks, tracks the full application lifecycle, and notifies users in-app on every event.
 
 ## Tech Stack
 
@@ -15,15 +15,17 @@ The College Placement Portal is a web-based campus recruitment management system
 ## Key Features
 
 1. Role-based login for students, recruiters, and the placement officer.
-2. Student profiles with photo, resume upload (PDF), and eligibility-based job browsing.
-3. Recruiter job management with applicant search, shortlisting, and rejection.
-4. Interview scheduling with automatic student notifications.
-5. Offer-letter upload and download for selected candidates.
-6. Admin dashboard with Chart.js analytics and department/company-wise reports.
-7. Company approval workflow before job posting.
-8. In-app notifications for all lifecycle events.
-9. CSV exports of students, recruiters, companies, jobs, and applications.
-10. Zero-configuration run: `python app.py`.
+2. One-screen recruiter signup: company, location, designation, experience, vacancies and open roles create the company, the account and live postings in a single submit.
+3. Seeded demo data (10 companies, 19 openings in the 3.4–5.0 LPA band) so Browse Jobs is populated on first run.
+4. Student profiles with photo, resume upload (PDF), and eligibility-based job browsing.
+5. Recruiter job management with applicant search, shortlisting, and rejection.
+6. Interview scheduling with automatic student notifications.
+7. Offer-letter upload and download for selected candidates.
+8. Admin dashboard with Chart.js analytics and department/company-wise reports.
+9. Company status controlled by admin, who can suspend or reinstate any company at any time.
+10. In-app notifications for all lifecycle events.
+11. CSV exports of students, recruiters, companies, jobs, and applications.
+12. Zero-configuration run: `python app.py`.
 
 ## Application Lifecycle
 
@@ -49,8 +51,8 @@ The database and upload folders are created automatically on first run.
 
 ## Testing
 
-- `tests/smoke_test.py` — 79 end-to-end route/flow tests.
-- `tests/test_units.py` — 12 unit tests for validators, models, queries, and notifications.
+- `tests/smoke_test.py` — 82 end-to-end route/flow tests.
+- `tests/test_units.py` — 15 unit tests for validators, models, queries, notifications and the recruiter signup helpers.
 
 ## Advantages
 

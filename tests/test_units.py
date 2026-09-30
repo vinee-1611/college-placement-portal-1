@@ -63,6 +63,29 @@ class TestValidators(unittest.TestCase):
         self.assertEqual(clean_skills("   "), None)
 
 
+class TestRecruiterQuickSignupHelpers(unittest.TestCase):
+    def test_parse_roles(self):
+        from blueprints.auth import parse_roles
+        self.assertEqual(parse_roles("Developer, Data Analyst"), ["Developer", "Data Analyst"])
+        self.assertEqual(parse_roles("  Developer ,,  "), ["Developer"])
+        self.assertEqual(parse_roles("Developer, developer, DEVELOPER"), ["Developer"])
+        self.assertEqual(parse_roles(""), [])
+        self.assertEqual(parse_roles(None), [])
+
+    def test_split_vacancies(self):
+        from blueprints.auth import split_vacancies
+        self.assertEqual(split_vacancies(4, 2), [2, 2])
+        self.assertEqual(split_vacancies(5, 2), [3, 2])
+        self.assertEqual(split_vacancies(3, 3), [1, 1, 1])
+        self.assertEqual(split_vacancies(1, 3), [1, 0, 0])
+        self.assertEqual(sum(split_vacancies(11, 4)), 11)
+
+    def test_default_recruiter_name(self):
+        from blueprints.auth import default_recruiter_name
+        self.assertEqual(default_recruiter_name("hr.manager@acme.com"), "Hr Manager")
+        self.assertEqual(default_recruiter_name("ravi_kumar@acme.com"), "Ravi Kumar")
+
+
 class TestModelsAndQueries(unittest.TestCase):
     def setUp(self):
         self.app = _app

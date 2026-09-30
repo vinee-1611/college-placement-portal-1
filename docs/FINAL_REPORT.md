@@ -19,7 +19,7 @@ There is a clear need for a single, centralised, role-based web platform where s
 1. Provide a single online platform for students, recruiters, and the placement officer.
 2. Allow students to register, maintain profiles, upload resumes, and apply only to jobs for which they are eligible.
 3. Let recruiters register companies, post and manage jobs, review applicants, shortlist, schedule interviews, and upload offer letters.
-4. Give the placement officer tools to approve companies/recruiters, manage all records, publish announcements, view statistics and export data.
+4. Give the placement officer tools to manage companies/recruiters, suspend or reinstate companies, manage all records, publish announcements, view statistics and export data.
 5. Enforce eligibility rules (CGPA, backlogs, deadline, no duplicate applications) automatically.
 6. Notify users in-app about every important event (application, shortlist, interview, result, offer).
 7. Generate placement reports and charts for monitoring performance.
@@ -47,7 +47,7 @@ The **College Placement Portal** replaces every step above with a web applicatio
 - **Automatic eligibility engine** — a job is only shown as "apply-able" when the student meets CGPA, backlog and deadline criteria and has not already applied.
 - **Status-driven application lifecycle** — `Applied → Shortlisted → Interview Scheduled → Selected / Rejected`, with an offer-letter download for selected students.
 - **Built-in notifications** — every stakeholder is notified in-app on each status change.
-- **Approval workflow** — companies must be approved by the admin before posting jobs.
+- **Company status control** — recruiter sign-up makes a company live immediately, and the admin can suspend or reinstate it at any time to gate job posting.
 - **Analytics & reports** — Chart.js dashboards, department/company-wise reports, and CSV exports.
 - **Zero-config deployment** — Flask + SQLite + SQLAlchemy + Flask-Login; the database and upload folders are created automatically on first run.
 
@@ -68,7 +68,7 @@ See `docs/ARCHITECTURE.md`, `docs/CLASS_DIAGRAM.md` and `docs/DIAGRAMS.md` for d
 | 1 | **Authentication (auth)** | Login/logout, student & recruiter registration, forgot/reset password, change password, strong-password and email validation, role-based login. |
 | 2 | **Student module (student)** | Dashboard, profile & photo, resume upload/download/delete, browse eligible jobs, apply/withdraw, track applications, join interviews, download offer letters. |
 | 3 | **Recruiter module (recruiter)** | Dashboard, company profile, job CRUD + active toggle, applicant search, shortlist/reject, interview scheduling, select candidates, upload/download offer letters. |
-| 4 | **Admin module (admin)** | Dashboard with charts, manage students/recruiters/companies/jobs, approve companies, manage applications/interviews, publish announcements, reports, settings, CSV exports. |
+| 4 | **Admin module (admin)** | Dashboard with charts, manage students/recruiters/companies/jobs, suspend or reinstate companies, manage applications/interviews, publish announcements, reports, settings, CSV exports. |
 | 5 | **Eligibility engine** | Filters jobs by active status, deadline, CGPA, backlogs, and duplicate applications; used across browse/apply/reports. |
 | 6 | **Notifications** | Central helper that creates in-app notifications for users on every lifecycle event. |
 | 7 | **Public module (main)** | Landing page, about, public announcements, notifications UI, static upload serving. |
@@ -84,7 +84,7 @@ See `docs/ARCHITECTURE.md`, `docs/CLASS_DIAGRAM.md` and `docs/DIAGRAMS.md` for d
 - Full application tracking with a clear status pipeline.
 - In-app notifications keep every stakeholder informed.
 - Instant, accurate placement statistics and exportable reports.
-- Approval workflow keeps company data verified.
+- Company status stays under admin control at all times.
 - Secure: hashed passwords, CSRF protection, input validation, role-based access.
 - Portable: runs offline anywhere with just Python; no internet or DB server needed.
 
@@ -100,4 +100,4 @@ See `docs/ARCHITECTURE.md`, `docs/CLASS_DIAGRAM.md` and `docs/DIAGRAMS.md` for d
 
 ## 10. Conclusion
 
-The College Placement Portal digitises the entire placement lifecycle — from registration and resume submission through job posting, applying, interviewing, selection and offer distribution — on a single secure platform. It eliminates manual paperwork, applies eligibility rules automatically, keeps every stakeholder notified, and gives the placement office live analytics. The project is fully functional, tested (79 smoke tests + 12 unit tests), and runs with a single `python app.py` command, making it ready for real-world campus use and easy to extend later.
+The College Placement Portal digitises the entire placement lifecycle — from registration and resume submission through job posting, applying, interviewing, selection and offer distribution — on a single secure platform. It eliminates manual paperwork, applies eligibility rules automatically, keeps every stakeholder notified, and gives the placement office live analytics. The project is fully functional, tested (82 smoke tests + 15 unit tests), and runs with a single `python app.py` command, making it ready for real-world campus use and easy to extend later.

@@ -151,6 +151,7 @@ class Recruiter(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False)
     name = db.Column(db.String(120), nullable=False)
     designation = db.Column(db.String(100), nullable=False)
+    experience = db.Column(db.String(20), nullable=True)
     phone = db.Column(db.String(15), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 

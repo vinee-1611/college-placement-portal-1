@@ -6,14 +6,15 @@ forgot & reset password, change password.
 """
 
 import secrets
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from flask import (Blueprint, flash, redirect, render_template, request,
                    url_for)
 from flask_login import current_user, login_required, login_user, logout_user
 
+from config import Config
 from extensions import db
-from models import Admin, Company, Recruiter, Student, User
+from models import Admin, Company, Job, Recruiter, Student, User
 from utils.validators import (clean_skills, is_strong_password, is_valid_cgpa,
                               is_valid_email, is_valid_phone, is_valid_roll_number)
 
@@ -27,6 +28,32 @@ DEPARTMENTS = [
     "Mechanical Engineering",
     "Civil Engineering",
 ]
+
+EXPERIENCE_LEVELS = Config.EXPERIENCE_LEVELS
+MAX_ROLES = 6
+QUICK_SIGNUP_DEADLINE_DAYS = 30
+
+
+def parse_roles(raw):
+    """Turn a comma-separated list of open roles into a clean, de-duplicated list."""
+    roles = []
+    for part in (raw or "").split(","):
+        role = part.strip()
+        if role and role.lower() not in [r.lower() for r in roles]:
+            roles.append(role)
+    return roles
+
+
+def split_vacancies(total, count):
+    """Spread `total` vacancies over `count` roles as evenly as possible."""
+    base, remainder = divmod(total, count)
+    return [base + (1 if index < remainder else 0) for index in range(count)]
+
+
+def default_recruiter_name(email):
+    """Fallback display name derived from the email local part."""
+    local_part = email.split("@")[0].replace(".", " ").replace("_", " ").strip()
+    return local_part.title() or "Recruiter"
 
 
 def dashboard_url_for(user):
@@ -151,6 +178,13 @@ def register():
 
 @auth_bp.route("/register/recruiter", methods=["GET", "POST"])
 def register_recruiter():
+    """Quick recruiter signup.
+
+    A recruiter only has to state who they are, where their company is, how
+    many vacancies they have and which roles are open. The company, the
+    recruiter account and one job posting per role are all created here so the
+    recruiter lands on a working dashboard instead of an empty form.
+    """
     if current_user.is_authenticated:
         return redirect(dashboard_url_for(current_user))
 
@@ -158,62 +192,106 @@ def register_recruiter():
         form = request.form
         email = form.get("email", "").strip().lower()
         password = form.get("password", "")
+        company_name = form.get("company_name", "").strip()
+        location = form.get("location", "").strip()
+        designation = form.get("designation", "").strip()
+        experience = form.get("experience", "").strip()
+        roles = parse_roles(form.get("roles", ""))
 
         errors = []
+        if not company_name:
+            errors.append("Company name is required.")
+        if not location:
+            errors.append("Company location is required.")
+        if not designation:
+            errors.append("Your designation is required.")
+        if experience not in EXPERIENCE_LEVELS:
+            errors.append("Please select your experience level.")
+        try:
+            vacancies = int(form.get("vacancies", 0))
+            if vacancies < 1:
+                errors.append("Vacancies must be at least 1.")
+        except ValueError:
+            vacancies = 0
+            errors.append("Invalid vacancies value.")
+        if not roles:
+            errors.append("Enter at least one role you are hiring for.")
+        elif len(roles) > MAX_ROLES:
+            errors.append(f"You can list up to {MAX_ROLES} roles at a time.")
         if not is_valid_email(email):
             errors.append("Please enter a valid email address.")
-        if User.query.filter_by(email=email).first():
-            errors.append("This email is already registered.")
+        elif User.query.filter_by(email=email).first():
+            errors.append("This email is already registered. Please log in instead.")
         if not is_strong_password(password):
             errors.append("Password must be at least 8 characters and include uppercase, lowercase, a number and a symbol.")
         if password != form.get("confirm_password", ""):
             errors.append("Passwords do not match.")
-        if not form.get("name", "").strip():
-            errors.append("Recruiter name is required.")
-        if not form.get("designation", "").strip():
-            errors.append("Designation is required.")
-        if not form.get("company_name", "").strip():
-            errors.append("Company name is required.")
-        if Company.query.filter_by(name=form.get("company_name", "").strip()).first():
-            errors.append("This company is already registered. Contact the placement office.")
-        if form.get("phone", "").strip() and not is_valid_phone(form.get("phone")):
-            errors.append("Please enter a valid phone number.")
 
         if errors:
             for error in errors:
                 flash(error, "danger")
         else:
-            company = Company(
-                name=form.get("company_name").strip(),
-                industry=form.get("industry", "").strip() or None,
-                website=form.get("website", "").strip() or None,
-                email=form.get("company_email", "").strip() or None,
-                phone=form.get("company_phone", "").strip() or None,
-                location=form.get("location", "").strip() or None,
-                description=form.get("description", "").strip() or None,
-                is_approved=False,
-            )
-            db.session.add(company)
-            db.session.flush()
+            company = Company.query.filter(
+                db.func.lower(Company.name) == company_name.lower()).first()
+            created_company = company is None
+            if created_company:
+                company = Company(
+                    name=company_name,
+                    location=location,
+                    description=f"{company_name} is hiring for {len(roles)} role(s) on the placement portal.",
+                    is_approved=True,
+                )
+                db.session.add(company)
+                db.session.flush()
+            else:
+                company.location = company.location or location
 
             user = User(email=email, role="recruiter")
             user.set_password(password)
             db.session.add(user)
             db.session.flush()
 
-            recruiter = Recruiter(
+            recruiter_name = form.get("name", "").strip() or default_recruiter_name(email)
+            db.session.add(Recruiter(
                 user_id=user.id,
                 company_id=company.id,
-                name=form.get("name").strip(),
-                designation=form.get("designation").strip(),
-                phone=form.get("phone", "").strip() or None,
-            )
-            db.session.add(recruiter)
-            db.session.commit()
-            flash("Company registered! Your account will be activated once the placement office approves your company.", "success")
-            return redirect(url_for("auth.login"))
+                name=recruiter_name,
+                designation=designation,
+                experience=experience,
+            ))
 
-    return render_template("auth/register_recruiter.html")
+            for role, role_vacancies in zip(roles, split_vacancies(vacancies, len(roles))):
+                db.session.add(Job(
+                    company_id=company.id,
+                    title=role,
+                    description=(
+                        f"{role} opening at {company.name}, {location}. "
+                        f"Applications are reviewed by the placement office for this "
+                        f"academic cycle. Edit this posting to add the full job "
+                        f"description, required skills and package."
+                    ),
+                    min_cgpa=6.0,
+                    max_backlogs=2,
+                    vacancies=role_vacancies,
+                    package=0.0,
+                    location=location,
+                    employment_type="Full-time",
+                    deadline=date.today() + timedelta(days=QUICK_SIGNUP_DEADLINE_DAYS),
+                    is_active=True,
+                ))
+
+            db.session.commit()
+            login_user(user)
+            flash(
+                f"Welcome aboard! {company.name} is live and "
+                f"{'we created ' + str(len(roles)) + ' job posting(s) from your openings' if created_company else 'your openings are now advertised'}.",
+                "success",
+            )
+            return redirect(url_for("recruiter.dashboard"))
+
+    return render_template("auth/register_recruiter.html",
+                           experience_levels=EXPERIENCE_LEVELS)
+
 
 
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])

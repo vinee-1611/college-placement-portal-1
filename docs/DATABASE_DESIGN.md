@@ -12,7 +12,7 @@ The database uses **SQLite** with **SQLAlchemy ORM**. It is created automaticall
 | 2 | students      | Academic + personal details for student accounts    |
 | 3 | recruiters    | Links a recruiter account to a company              |
 | 4 | admins        | Placement officer details                           |
-| 5 | companies     | Company profiles, approved by admin                 |
+| 5 | companies     | Company profiles; status controlled by admin          |
 | 6 | jobs          | Job postings with eligibility criteria              |
 | 7 | applications  | Student ⇄ job applications with status tracking     |
 | 8 | interviews    | Interview rounds per application                    |
@@ -189,6 +189,7 @@ erDiagram
 | company_id  | Integer  | FK→companies.id               |
 | name        | String120| NOT NULL                      |
 | designation | String100| NOT NULL                      |
+| experience  | String20 | experience band from signup   |
 | phone       | String15 | validated                     |
 
 ### admins
@@ -211,7 +212,7 @@ erDiagram
 | location    | String100|                                   |
 | description | Text     |                                   |
 | logo        | String256|                                   |
-| is_approved | Boolean  | default False (admin approves)    |
+| is_approved | Boolean  | default False; set True on recruiter signup or by the admin |
 
 ### jobs
 | Column          | Type     | Constraint              |

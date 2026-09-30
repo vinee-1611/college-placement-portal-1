@@ -45,10 +45,10 @@ A suggested slide-by-slide structure for presenting the College Placement Portal
 - ER diagram in `docs/DATABASE_DESIGN.md`.
 
 ## Slide 10 — Live Demo (10 minutes)
-1. Landing page → register a student + a recruiter.
-2. Admin approves the company.
-3. Recruiter posts a job.
-4. Student uploads resume and applies.
+1. Landing page shows the seeded demo companies and open positions.
+2. Register a recruiter with the one-screen form (company, location, roles, vacancies, designation, experience) — postings go live and they are logged straight in.
+3. Recruiter refines one of the generated postings in **My Jobs**.
+4. Register a student, upload a resume and apply.
 5. Recruiter shortlists → schedules interview → selects → uploads offer.
 6. Student sees notifications and downloads the offer.
 7. Admin dashboard charts + a report + CSV export.
@@ -57,7 +57,7 @@ A suggested slide-by-slide structure for presenting the College Placement Portal
 - scrypt password hashing, CSRF protection, server-side validation, role-based access decorators, XSS-safe templates.
 
 ## Slide 12 — Testing
-- 79 end-to-end smoke tests + 12 unit tests, all passing.
+- 82 end-to-end smoke tests + 15 unit tests, all passing.
 
 ## Slide 13 — Advantages
 - Centralised, automatic eligibility, full tracking, notifications, instant analytics, portable & offline.
@@ -74,15 +74,17 @@ A suggested slide-by-slide structure for presenting the College Placement Portal
 
 ## Demo Checklist
 
-- [ ] `python app.py` runs cleanly, DB auto-creates.
+- [ ] `python app.py` runs cleanly, DB auto-creates and demo jobs seed.
 - [ ] Admin login: `admin@placement.edu` / `Admin@123`.
+- [ ] Demo recruiter login: `tcs.recruiter@demo.edu` / `Recruiter@123`.
 - [ ] Student registration + profile + resume upload.
-- [ ] Recruiter registration; company shows **Pending**.
-- [ ] Admin approves company.
-- [ ] Recruiter posts a job with CGPA/backlog/deadline.
+- [ ] Recruiter one-screen signup: company, location, roles, vacancies, designation, experience.
+- [ ] Postings are live immediately and the recruiter is already logged in.
+- [ ] Recruiter edits a generated posting with CGPA/backlog/deadline/package.
 - [ ] Student sees the job as eligible and applies (reject duplicate).
 - [ ] Recruiter shortlists → schedules interview → student notified.
 - [ ] Student joins interview; recruiter selects → uploads offer.
 - [ ] Student downloads offer; dashboard shows placed stats.
+- [ ] Admin suspends a company → its recruiter can no longer post.
 - [ ] Admin Reports page + CSV export.
 - [ ] Announcement published and visible to students/recruiters.

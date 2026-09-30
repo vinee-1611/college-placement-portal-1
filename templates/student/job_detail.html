@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="row g-2 mb-4">
-          <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.package }} LPA</div><small class="muted">Package</small></div>
+          <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.package ~ ' LPA' if job.package else 'On request' }}</div><small class="muted">Package</small></div>
           <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.vacancies }}</div><small class="muted">Vacancies</small></div>
           <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.location or 'N/A' }}</div><small class="muted">Location</small></div>
           <div class="col-6 col-md-3 text-center p-2 bg-light rounded"><div class="fw-bold text-primary">{{ job.deadline.strftime('%d %b %Y') }}</div><small class="muted">Deadline</small></div>

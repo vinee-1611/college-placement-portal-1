@@ -51,7 +51,7 @@ The server checks for an existing application and rejects the duplicate with a f
 The recruiters need a resume to evaluate candidates; the apply route validates that `resume_path` exists before creating an application.
 
 **Q15. What is the company approval workflow?**
-Recruiters register with a company; the company starts as `is_approved=False`. Jobs can only be posted after the admin approves the company.
+Recruiter sign-up is deliberately one screen: the recruiter enters company name, company location, their designation and experience, the total vacancies and the roles they are hiring for. The route then creates the company, the recruiter account and one `jobs` row per role (splitting the vacancies evenly), marks the company `is_approved=True` and logs the recruiter straight in — so a posting is live the moment they sign up instead of waiting for a manual approval round-trip. The admin keeps the last word: `companies.is_approved` can be toggled from **Admin → Companies**, which blocks further job posting and hides that company's jobs from student Browse Jobs.
 
 ## Features / Implementation
 
@@ -70,7 +70,7 @@ The admin reports route builds CSV in memory with Python's `csv` module and stre
 ## Testing & Deployment
 
 **Q20. How did you test it?**
-`tests/smoke_test.py` runs 79 end-to-end requests through Flask's test client (registration → apply → interview → offer → reports) and `tests/test_units.py` runs 12 unit tests for validators, models, eligibility and notifications.
+`tests/smoke_test.py` runs 82 end-to-end requests through Flask's test client (quick recruiter signup → auto-posted jobs → apply → interview → offer → reports) and `tests/test_units.py` runs 15 unit tests for validators, models, eligibility, notifications and the recruiter signup helpers.
 
 **Q21. How is the application deployed/run?**
 ```bash

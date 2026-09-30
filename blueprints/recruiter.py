@@ -11,6 +11,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template,
                    request, url_for)
 from flask_login import current_user, login_required
 
+from config import Config
 from extensions import db
 from models import Application, Interview, Job, Offer, Recruiter, Student
 from utils.decorators import role_required
@@ -21,6 +22,7 @@ from utils.validators import has_pdf_extension, is_valid_cgpa, is_valid_phone
 recruiter_bp = Blueprint("recruiter", __name__)
 
 EMPLOYMENT_TYPES = ["Full-time", "Internship", "Contract", "Part-time"]
+EXPERIENCE_LEVELS = Config.EXPERIENCE_LEVELS
 
 
 def current_recruiter():
@@ -67,7 +69,8 @@ def dashboard():
 def profile():
     return render_template("recruiter/profile.html",
                            recruiter=current_recruiter(),
-                           company=recruiter_company())
+                           company=recruiter_company(),
+                           experience_levels=EXPERIENCE_LEVELS)
 
 
 @recruiter_bp.route("/profile/update", methods=["POST"])
@@ -90,6 +93,7 @@ def update_profile():
     else:
         recruiter.name = form.get("name").strip()
         recruiter.designation = form.get("designation").strip()
+        recruiter.experience = form.get("experience", "").strip() or None
         recruiter.phone = form.get("phone", "").strip() or None
         db.session.commit()
         flash("Profile updated successfully.", "success")

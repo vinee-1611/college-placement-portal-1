@@ -55,57 +55,76 @@ try:
                  "/admin/export/jobs.csv", "/admin/export/applications.csv"]:
         check(f"GET {path}", client.get(path))
 
-    # Approve a company via admin (create one first through recruiter registration)
+    # Demo data seeded on first run populates Browse Jobs
+    check("GET / (with demo jobs)", client.get("/"))
+    with app.app_context():
+        from models import Job as _Job
+        demo_job_count = _Job.query.count()
+    assert demo_job_count > 0, "demo jobs were not seeded"
+    check("demo jobs seeded", client.get("/admin/dashboard"))
+
+    # Quick recruiter signup: company details + vacancies + roles, auto login
     client.get("/auth/logout")
     r = client.post("/auth/register/recruiter", data={
         "email": "hr@techcorp.com", "password": "Hr@12345", "confirm_password": "Hr@12345",
-        "name": "Ravi Kumar", "designation": "HR Manager", "phone": "+919876543210",
-        "company_name": "TechCorp Solutions", "industry": "IT", "website": "https://techcorp.com",
-        "company_email": "hr@techcorp.com", "company_phone": "+919876543210",
-        "location": "Hyderabad", "description": "Software company",
+        "company_name": "TechCorp Solutions", "location": "Hyderabad",
+        "designation": "HR Manager", "experience": "2-5 years",
+        "vacancies": "5", "roles": "Software Engineer, Data Analyst",
+        "name": "Ravi Kumar",
     }, follow_redirects=True)
-    check("POST recruiter register", r)
-
-    # Recruiter login (company pending)
-    r = client.post("/auth/login", data={"email": "hr@techcorp.com", "password": "Hr@12345"}, follow_redirects=True)
-    check("POST recruiter login", r)
+    check("POST recruiter quick signup", r)
     body = r.get_data(as_text=True)
-    assert "Recruiter Dashboard" in body, "recruiter dashboard not rendered"
+    assert "Recruiter Dashboard" in body, "quick signup did not log the recruiter in"
+    assert "go live" in body or "live" in body.lower()
+
+    # Company is active straight away and one posting per role was created
+    from models import Company as _Company
+    from models import Job as _Job
+    from models import User as _User
+    with app.app_context():
+        test_company = _Company.query.filter_by(name="TechCorp Solutions").first()
+        assert test_company is not None, "company not created by quick signup"
+        assert test_company.is_approved, "quick signup company should be live immediately"
+        recruiter_job_ids = sorted(j.id for j in test_company.jobs)
+        test_company_id = test_company.id
+    assert len(recruiter_job_ids) == 2, f"expected one posting per role, got {recruiter_job_ids}"
+    posted_job_id, analyst_job_id = recruiter_job_ids
+    check("GET /recruiter/jobs (auto-posted)", client.get("/recruiter/jobs"))
+    check("GET auto-posted job detail", client.get(f"/recruiter/jobs/{posted_job_id}"))
 
     # Recruiter pages
     for path in ["/recruiter/dashboard", "/recruiter/profile", "/recruiter/jobs",
                  "/recruiter/applicants", "/recruiter/interviews", "/recruiter/offers"]:
         check(f"GET {path}", client.get(path))
-    # job_new redirects to profile while company is unapproved
-    check("GET /recruiter/jobs/new (unapproved)", client.get("/recruiter/jobs/new"), expect_status=302)
 
-    # Post a job while company unapproved -> blocked
+    # Admin can suspend an approved company, which blocks job posting
+    client.get("/auth/logout")
+    client.post("/auth/login", data={"email": "admin@placement.edu", "password": "Admin@123"})
+    r = client.post(f"/admin/companies/{test_company_id}/approve", follow_redirects=True)
+    check("POST admin suspend company", r)
+    client.get("/auth/logout")
+    client.post("/auth/login", data={"email": "hr@techcorp.com", "password": "Hr@12345"})
+    check("GET /recruiter/jobs/new (suspended)", client.get("/recruiter/jobs/new"), expect_status=302)
     r = client.post("/recruiter/jobs/new", data={
         "title": "Software Engineer", "description": "Build web apps",
         "skills": "Python, Flask", "min_cgpa": "7", "max_backlogs": "2",
         "vacancies": "5", "package": "8", "location": "Hyderabad",
         "employment_type": "Full-time", "deadline": "2026-12-31",
     }, follow_redirects=True)
-    check("POST job while unapproved (blocked)", r)
+    check("POST job while suspended (blocked)", r)
     assert "must be approved" in r.get_data(as_text=True).lower()
 
-    # Admin approves the company
+    # Re-approve the company
     client.get("/auth/logout")
     client.post("/auth/login", data={"email": "admin@placement.edu", "password": "Admin@123"})
-    from models import Recruiter
-    ctx = app.app_context()
-    ctx.push()
-    recruiter = Recruiter.query.first()
-    recruiter_id = recruiter.id
-    ctx.pop()
-    r = client.post(f"/admin/recruiters/{recruiter_id}/approve", follow_redirects=True)
-    check("POST admin approve company", r)
+    r = client.post(f"/admin/companies/{test_company_id}/approve", follow_redirects=True)
+    check("POST admin re-approve company", r)
 
-    # Recruiter posts a job now that company is approved
+    # Recruiter posts an extra job manually
     client.get("/auth/logout")
     client.post("/auth/login", data={"email": "hr@techcorp.com", "password": "Hr@12345"})
     r = client.post("/recruiter/jobs/new", data={
-        "title": "Software Engineer", "description": "Build web apps with Python",
+        "title": "Backend Engineer", "description": "Build web apps with Python",
         "skills": "Python, Flask, SQL", "min_cgpa": "7", "max_backlogs": "2",
         "vacancies": "5", "package": "8", "location": "Hyderabad",
         "employment_type": "Full-time", "deadline": "2026-12-31",
@@ -113,8 +132,7 @@ try:
     check("POST job (approved)", r)
     assert "posted successfully" in r.get_data(as_text=True).lower()
     check("GET /recruiter/jobs", client.get("/recruiter/jobs"))
-    check("GET job detail", client.get("/recruiter/jobs/1"))
-    check("GET job applicants", client.get("/recruiter/jobs/1/applicants"))
+    check("GET job applicants", client.get(f"/recruiter/jobs/{posted_job_id}/applicants"))
 
     # Student registration + login
     client.get("/auth/logout")
@@ -136,12 +154,16 @@ try:
                  "/notifications"]:
         check(f"GET {path}", client.get(path))
 
-    # Browse job details
-    check("GET job detail (student)", client.get("/student/jobs/1"))
-    check("GET /student/jobs", client.get("/student/jobs"))
+    # Browse jobs: demo postings plus the recruiter's own are all listed
+    r = client.get("/student/jobs")
+    check("GET /student/jobs", r)
+    jobs_body = r.get_data(as_text=True)
+    assert "Software Engineer" in jobs_body, "recruiter's posted job missing from Browse Jobs"
+    assert "Tata Consultancy Services" in jobs_body, "seeded demo company missing from Browse Jobs"
+    check("GET job detail (student)", client.get(f"/student/jobs/{posted_job_id}"))
 
     # Apply without resume -> blocked
-    r = client.post("/student/jobs/1/apply", follow_redirects=True)
+    r = client.post(f"/student/jobs/{posted_job_id}/apply", follow_redirects=True)
     check("apply without resume blocked", r)
     assert "resume" in r.get_data(as_text=True).lower()
 
@@ -158,14 +180,21 @@ try:
     check("resume download", client.get("/student/resume/download"))
 
     # Apply for the job
-    r = client.post("/student/jobs/1/apply", follow_redirects=True)
+    r = client.post(f"/student/jobs/{posted_job_id}/apply", follow_redirects=True)
     check("apply to job", r)
     assert "submitted" in r.get_data(as_text=True).lower()
     check("GET /student/applications (applied)", client.get("/student/applications"))
     check("GET /student/dashboard (after apply)", client.get("/student/dashboard"))
 
+    with app.app_context():
+        from models import Application as _Application
+        application_id = (_Application.query
+                          .filter_by(job_id=posted_job_id)
+                          .order_by(_Application.id.desc())
+                          .first()).id
+
     # Duplicate apply blocked
-    r = client.post("/student/jobs/1/apply", follow_redirects=True)
+    r = client.post(f"/student/jobs/{posted_job_id}/apply", follow_redirects=True)
     check("duplicate apply blocked", r)
     assert "already applied" in r.get_data(as_text=True).lower()
 
@@ -183,10 +212,10 @@ try:
 
     # Recruiter shortlists applicant
     client.post("/auth/login", data={"email": "hr@techcorp.com", "password": "Hr@12345"})
-    check("GET applicant detail", client.get("/recruiter/applicants/1"))
-    r = client.post("/recruiter/applicants/1/status", data={"action": "shortlist"}, follow_redirects=True)
+    check("GET applicant detail", client.get(f"/recruiter/applicants/{application_id}"))
+    r = client.post(f"/recruiter/applicants/{application_id}/status", data={"action": "shortlist"}, follow_redirects=True)
     check("POST shortlist applicant", r)
-    r = client.post("/recruiter/applicants/1/interview", data={
+    r = client.post(f"/recruiter/applicants/{application_id}/interview", data={
         "interview_date": "2026-09-15", "interview_time": "10:30", "round": "Technical",
         "mode": "Online", "venue": "https://meet.example.com", "remarks": "Aptitude passed",
     }, follow_redirects=True)
@@ -194,9 +223,9 @@ try:
     check("GET /recruiter/interviews", client.get("/recruiter/interviews"))
 
     # Recruiter selects the applicant and uploads offer letter
-    r = client.post("/recruiter/applicants/1/select", follow_redirects=True)
+    r = client.post(f"/recruiter/applicants/{application_id}/select", follow_redirects=True)
     check("POST select applicant", r)
-    r = client.post("/recruiter/applicants/1/offer", data={
+    r = client.post(f"/recruiter/applicants/{application_id}/offer", data={
         "package": "9", "offer_letter": (io.BytesIO(b"%PDF-1.4 offer"), "offer.pdf"),
     }, content_type="multipart/form-data", follow_redirects=True)
     check("POST upload offer", r)
@@ -205,9 +234,12 @@ try:
     # Student sees offer + interview
     client.get("/auth/logout")
     client.post("/auth/login", data={"email": "student1@college.edu", "password": "Student@123"})
+    with app.app_context():
+        from models import Offer as _Offer
+        offer_id = _Offer.query.filter_by(application_id=application_id).first().id
     check("GET /student/offers", client.get("/student/offers"))
     check("GET /student/interviews", client.get("/student/interviews"))
-    check("GET offer download", client.get("/student/offers/1/download"))
+    check("GET offer download", client.get(f"/student/offers/{offer_id}/download"))
 
     # Role isolation
     client.get("/auth/logout")

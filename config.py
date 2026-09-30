@@ -37,3 +37,9 @@ class Config:
     # Default admin account created on first run
     DEFAULT_ADMIN_EMAIL = "admin@placement.edu"
     DEFAULT_ADMIN_PASSWORD = "Admin@123"
+
+    # Shared password for the demo recruiter/company accounts seeded on first run
+    DEFAULT_RECRUITER_PASSWORD = os.environ.get("DEMO_RECRUITER_PASSWORD", "Recruiter@123")
+
+    # Experience bands offered when a recruiter signs up or edits their profile
+    EXPERIENCE_LEVELS = ["0-1 years", "1-2 years", "2-5 years", "5-10 years", "10+ years"]

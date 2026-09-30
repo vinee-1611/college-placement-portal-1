@@ -66,6 +66,15 @@
               <input type="text" name="designation" class="form-control" value="{{ recruiter.designation }}" required>
             </div>
             <div class="col-md-6">
+              <label class="form-label">Experience</label>
+              <select name="experience" class="form-select">
+                <option value="">Not specified</option>
+                {% for level in experience_levels %}
+                  <option value="{{ level }}" {{ 'selected' if recruiter.experience == level }}>{{ level }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
               <label class="form-label">Phone</label>
               <input type="text" name="phone" class="form-control" value="{{ recruiter.phone or '' }}">
             </div>
