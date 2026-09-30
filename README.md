@@ -49,7 +49,7 @@ The SQLite database (`database.db`) and all upload folders are created automatic
 | Role | Email | Password |
 |------|-------|----------|
 | Placement Officer | `admin@placement.edu` | `Admin@123` |
-| Demo Recruiter (TCS) | `tcs.recruiter@demo.edu` | `Recruiter@123` |
+| Demo Recruiter (TCS) | `tcs.recruiter@demo.edu` | `Recruiter@1231` |
 | Demo Recruiter (Amazon) | `amazon.recruiter@demo.edu` | `Recruiter@123` |
 
 All ten seeded demo companies (`utils/demo_data.py`) share the same recruiter password
